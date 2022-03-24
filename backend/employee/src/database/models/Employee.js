@@ -2,11 +2,6 @@ const mongoose = require('mongoose');
 
 const Schema = mongoose.Schema;
 
-const ROLE ={
-    ADMIN: 'admin',
-    STAFF: 'support'
-}
-
 const employee = new Schema({
     email: {
         type: String,
@@ -27,6 +22,10 @@ const employee = new Schema({
         required: true,
     },
     lastName: {
+        type: String,
+        required: true,
+    },
+    salt: {
         type: String,
         required: true,
     },

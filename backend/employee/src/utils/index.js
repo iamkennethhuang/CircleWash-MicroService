@@ -1,7 +1,5 @@
 const bcrypt = require('bcrypt');
 const jwt  = require('jsonwebtoken');
-// const Cryptr = require('cryptr');
-// const cryptr = new Cryptr(process.env.CRYPTR_KEY);
 const { APP_SECRET } = require('../config');
 
 module.exports.GenerateSalt = async() => {

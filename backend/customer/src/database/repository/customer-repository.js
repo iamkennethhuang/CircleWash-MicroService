@@ -108,6 +108,15 @@ class CustomerRepository {
             throw new APIError('API Error', STATUS_CODES.INTERNAL_ERROR, 'Error on Updating Customer Phone');
         }
     }   
+
+    async deleteCustomer({ _id}){
+        try{
+            const removedCustomer = await Customer.findByIdAndRemove(_id);
+            return removedCustomer
+        }catch(err){
+            throw new APIError('API Error', STATUS_CODES.INTERNAL_ERROR, 'Error on Removing Customer');
+        }
+    }   
 }
 
 module.exports = CustomerRepository;

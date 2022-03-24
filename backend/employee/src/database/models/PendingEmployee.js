@@ -9,9 +9,6 @@ const pendingEmployee = new Schema({
     password: {
         type: String,
     },
-    encryptPassword: {
-        type: String,
-    },
     status: {
         type: Boolean,
     },

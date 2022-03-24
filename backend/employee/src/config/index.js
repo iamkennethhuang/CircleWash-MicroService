@@ -11,6 +11,7 @@ module.exports = {
 
     PORT: process.env.PORT,
     APP_SECRET: process.env.APP_SECRET,
-    ATLAS_URI: process.env.ATLAS_URI
-    
+    ATLAS_URI: process.env.ATLAS_URI,
+    CRYPTR_KEY: process.env.CRYPTR_KEY
+
 }

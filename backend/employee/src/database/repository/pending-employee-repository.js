@@ -3,15 +3,13 @@ const { APIError, STATUS_CODES } = require('../../utils/app-errors');
 
 class PendingEmployeeRepository {
 
-    async createPendingEmployee({email, password, encryptPassword, firstName, lastName, salt, status}){
+    async createPendingEmployee({email, password, firstName, lastName, status}){
         try{
             const newPendingEmployee = new PendingEmployee({
                 email: email,
                 password: password,
-                encryptPassword: encryptPassword,
                 firstName: firstName,
                 lastName: lastName,
-                salt: salt,
                 status: status
             })
             const newPendingEmployeeData = await newPendingEmployee.save();
@@ -45,10 +43,37 @@ class PendingEmployeeRepository {
 
     async findPendingEmployeeById({ _id }){
         try{
-            const pendingEmployeeInfo = await PendingEmployee.findById(_id).populate('addresses');
+            const pendingEmployeeInfo = await PendingEmployee.findById(_id);
             return pendingEmployeeInfo;
         }catch(err){
             throw new APIError('API Error', STATUS_CODES.INTERNAL_ERROR, 'Error on Finding PendingEmployee');
+        }
+    }
+
+    async findAllPendingEmployee(){
+        try{
+            const allPendingEmployee = await PendingEmployee.find({});
+            return allPendingEmployee;
+        } catch(err){
+            throw new APIError('API Error', STATUS_CODES.INTERNAL_ERROR, 'Error on Find All Pending Employee');
+        }
+    }
+    
+    async updatePendingEmployeeStatus({employee, pendingId}){
+        try{
+            const result = await PendingEmployee.findByIdAndUpdate(pendingId, {status: false, approveStaff: employee, approveTime: new Date()});
+            return result;
+        } catch(err){
+            throw new APIError('API Error', STATUS_CODES.INTERNAL_ERROR, 'Error on Update Pending Employee Status');
+        }
+    }
+
+    async deletePendingEmployee({_id}){
+        try{
+            const result = await PendingEmployee.findByIdAndRemove(_id);
+            return result;
+        } catch(err){
+            throw new APIError('API Error', STATUS_CODES.INTERNAL_ERROR, 'Error on Delete PendingEmployee');
         }
     }
 }

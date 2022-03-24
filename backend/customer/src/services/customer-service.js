@@ -91,6 +91,33 @@ class CustomerService {
             throw new APIError('Data Not found', err);
         }
     }
+
+    async removeCustomer(_id, customerId){
+        try{
+            const removedCustomer = await this.repository.deleteCustomer({customerId});
+            return FormateData(removedCustomer);
+        } catch (err) {
+            throw new APIError('Data Not found', err);
+        }
+    }
+
+    async SubscribeEvents(payload){
+ 
+        payload = JSON.parse(payload);
+
+        const { event, data } =  payload;
+
+        const { userId, customerId } = data;
+
+        switch(event){
+            case 'REMOVE_CUSTOMER':
+                this.removeCustomer(userId, customerId);
+                break;
+            default:
+                break;
+        }
+ 
+    }
 }
 
 module.exports = CustomerService;

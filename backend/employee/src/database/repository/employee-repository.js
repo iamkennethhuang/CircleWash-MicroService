@@ -78,6 +78,15 @@ class EmployeeRepository {
             throw new APIError('API Error', STATUS_CODES.INTERNAL_ERROR, 'Error on Updating Employee Password');
         }
     }
+
+    async findAllEmployee(){
+        try{
+            const allEmployee = await Employee.find({});
+            return allEmployee;
+        } catch(err){
+            throw new APIError('API Error', STATUS_CODES.INTERNAL_ERROR, 'Error on Find All Employee');
+        }
+    }
 }
 
 module.exports = EmployeeRepository;
