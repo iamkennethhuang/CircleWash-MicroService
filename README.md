@@ -23,7 +23,9 @@ The diagram below is an analysis of the business domain. The diagram analysis di
 
 ## Bounded Context
 The diagram above shows a general relationship between each domain. But a system that has various functions, the relationship between each domain may differ. So creating multiple models representing the same real-world entity in different contexts. So bounded Context diagram can help identify boundaries within one big domain. In the diagram below, I grouped functionality that will share a single domain model into a dotted line circle.
+
 ![bounded context](readmeImages/boundedContext.png)
+
 Bounded context isn’t isolated from each other. They are connected with a solid line that defines their relationship with each other. 
 - Support boundary depends on customer and employee to get information about the employees and customers. And, it depends on machine management to get machine analysis data on each support case. Finally, it depends on LaundryCleaning/FasCard to retrieve payment data (if there is any). 
 - Machine Management depends on FasCard to get all the machine data for analysis.
@@ -61,7 +63,9 @@ Case, Customer, Employee, Machine, and Chat are all aggregates that represent tr
 
 **Domain Service:**
 - n/a
+
 ![define entities](readmeImages/defineEntities.png)
+
 The diagram above demonstrate entities, domain event, and domain service for Support bounded context.
 
 <a name='Identify-Microservice'></a>
@@ -72,4 +76,5 @@ In this section, we will derive microservice from the domain model that we have 
 From the previous section, we have identified four aggregations, customer, machine, case, chat, and employee. According to DDD design aggregation is a good candidate for a service because it exhibits many characteristics of a well-designed microservice. 
 
 Considering many other services might need to send notifications to clients or employees, I decided Notification would be an individual service. In the notification service, we can store all the notifications in a database for future review.
+
 ![system diagram](readmeImages/system.png)
