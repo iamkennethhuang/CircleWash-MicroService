@@ -26,7 +26,7 @@ const customerSchema = new Schema({
         required: false,
     },
     addresses:[
-        { type: Schema.Types.ObjectId, ref: 'Address', require: true }
+        { type: Schema.Types.ObjectId, ref: 'Address'}
     ],
     salt: {
         type: String,

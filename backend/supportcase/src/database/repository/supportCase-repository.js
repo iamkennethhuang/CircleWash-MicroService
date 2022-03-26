@@ -105,11 +105,12 @@ class SupportCaseRepository {
 
     async findWeekSupportCaseAmount(){
         const todayDate = new Date();
-        const date =(todayDate.getDate());
+        const date = (todayDate.getDate());
+        const day = (todayDate.getDay());
         const month = (todayDate.getMonth());
         const year = (todayDate.getFullYear());
         const today = (new Date(year,month,date));
-        const diff = today.getDate() - date + (date === 0 ? -6 : 1);
+        const diff = today.getDate() - day + (day === 0 ? -6 : 1);
         const monday = new Date(today.setDate(diff));
         try{
             const allWeekSupportCaseAmount = await SupportCase.find({date: { $gte: monday}}).count();
