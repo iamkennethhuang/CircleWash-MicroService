@@ -3,12 +3,15 @@ const { FormateData, GeneratePassword, GenerateSalt, GenerateSignature, Validate
 const { APIError } = require('../utils/app-errors');
 const { CRYPTR_KEY } = require('../config');
 const Cryptr = require('cryptr');
+const {PublishMessage} = require('../utils');
+const {NOTIFICATION_BINDING_KEY} = require('../config');
 
 const cryptr = new Cryptr(CRYPTR_KEY);
 
 class EmployeeService{
 
-    constructor(){
+    constructor(channel){
+        this.channel = channel;
         this.repository = new EmployeeRepository();
         this.pRepository = new PendingEmployeeRepository();
     }
@@ -151,6 +154,59 @@ class EmployeeService{
         }
     }
 
+    async getAllEmployeeEmails({employeeEvent}){
+        try{
+            const allEmployee = await this.repository.findAllEmployee();
+            const employeeEmails = allEmployee.map(function(employee){
+                return employee.email;
+            })
+            const payload = {
+                event: employeeEvent,
+                data: employeeEmails
+            }
+            PublishMessage(this.channel, NOTIFICATION_BINDING_KEY, JSON.stringify(payload))
+        } catch(err){
+            throw new APIError('Data Not found', err);
+        }
+    }
+
+    async getAllAdminEmails({employeeEvent}){
+        try{
+            const allAdmin = await this.repository.findAllAdmin();
+            const adminEmails = allAdmin.map(function(employee){
+                return employee.email;
+            })
+            const payload = {
+                event: employeeEvent,
+                data: adminEmails
+            }
+            PublishMessage(this.channel, NOTIFICATION_BINDING_KEY, JSON.stringify(payload))
+        } catch(err){
+            throw new APIError('Data Not found', err);
+        }
+        
+    }
+
+    async SubscribeEvents(payload){
+ 
+        payload = JSON.parse(payload);
+        
+        const { event, data } =  payload;
+
+        const {employeeEvent} = data
+
+        switch(event){
+            case 'GET_ALL_EMPLOYEE_EMAIL':
+                this.getAllEmployeeEmails({employeeEvent});
+                break;
+            case 'GET_ALL_ADMIN_EMAIL':
+                this.getAllAdminEmails({employeeEvent});
+                break;
+            default:
+                break;
+        }
+ 
+    }
 }
 
 module.exports = EmployeeService;

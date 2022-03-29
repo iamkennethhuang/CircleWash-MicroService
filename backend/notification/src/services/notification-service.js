@@ -12,12 +12,12 @@ class NotificationService{
         this.repository = new NotificationRepository();
     }
 
-    async sendNewSupportCaseNotification(){
+    async sendNewSupportCaseNotification(userInputs){
 
         const subject = 'New Support Case Notification';
         const information = 'There is a new support case submitted.';
         const authorEmail = '';
-        const recipientEmail = '';
+        const {recipientEmail} = userInputs;
         const sentTime = new Date();
 
         try{
@@ -149,6 +149,40 @@ class NotificationService{
         } catch (err) {
             throw new APIError('Data Not found', err);
         }
+    }
+
+    async SubscribeEvents(payload){
+ 
+        payload = JSON.parse(payload);
+        
+        const { event, data } =  payload;
+
+        const { recipientEmail} = data; 
+
+
+        switch(event){
+            case 'NEW_CASE_NOTIFICATION':
+                this.sendNewSupportCaseNotification({recipientEmail});
+                break;
+            case 'NEW_EMPLOYEE_APPROVE_NOTIFICATION':
+                this.sendAccountAppoveNotification({recipientEmail});
+                break;
+            case 'NEW_EMPLOYEE_DENY_NOTIFICATION':
+                this.sendAccountDenyNotification({recipientEmail});
+                break;
+            case 'ROLE_CHANGE_NOTIFICATION':
+                this.sendRoleChangeNotification({recipientEmail});
+                break;
+            case 'NEW_EMPLOYEE_NOTIFICATION':
+                this.sendNewPendingAccountNotification({recipientEmail});
+                break;
+            case 'NEW_REQUEST_NOTIFICATION':
+                this.sendNewPendingCaseRequestNotification({recipientEmail});
+                break;
+            default:
+                break;
+        }
+ 
     }
 }
 

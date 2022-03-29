@@ -87,6 +87,15 @@ class EmployeeRepository {
             throw new APIError('API Error', STATUS_CODES.INTERNAL_ERROR, 'Error on Find All Employee');
         }
     }
+
+    async findAllAdmin(){
+        try{
+            const allAdmin = await Employee.find({role: 'admin'});
+            return allAdmin;
+        } catch(err){
+            throw new APIError('API Error', STATUS_CODES.INTERNAL_ERROR, 'Error on Find All Employee');
+        }
+    }
 }
 
 module.exports = EmployeeRepository;

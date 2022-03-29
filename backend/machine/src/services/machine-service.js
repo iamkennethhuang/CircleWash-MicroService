@@ -1,6 +1,8 @@
+const { FormateData, PublishMessage, SubscribeMessage} = require('../utils');
+const { FASCARD_USERNAME, FASCARD_PASSWORD, SUPPORT_CASE_BINDING_KEY} = require('../config');
 const { MachineRepository} = require("../database");
-const { FormateData, GeneratePassword, GenerateSalt, GenerateSignature, ValidatePassword } = require('../utils');
 const { APIError } = require('../utils/app-errors');
+const axios = require('axios');
 
 const machIdList = [ 44021, 44022, 44023, 44024, 44025, 44026, 44027, 44028, 44029, 
     44033, 44036, 44037, 44040, 44061, 44062, 44063, 44064, 44065, 44066, 44067, 
@@ -12,10 +14,10 @@ const machIdList = [ 44021, 44022, 44023, 44024, 44025, 44026, 44027, 44028, 440
 
 const apiOption = {year: 'numeric', month: 'numeric', day: 'numeric'};
 
-
 class MachineService{
 
-    constructor(){
+    constructor(channel){
+        this.channel = channel;
         this.repository = new MachineRepository();
     }
 
@@ -53,6 +55,13 @@ class MachineService{
         return machIdList[listPosition];
     }
 
+    async converUTCToPST({date}){
+        const utcms = Number(Date.parse(date));
+        const pstms = utcms - 25200000;
+        const pst = new Date(pstms);
+        return pst;
+    }
+
     //should not be called out side of this program 
     async getYesterdayDate(){
         const todayDate = new Date();
@@ -76,6 +85,25 @@ class MachineService{
         const yesterday = new Date(today.setDate(diff));
         //above code get yesterday date
         const sampleDate = yesterday.toLocaleDateString("en-US", apiOption);
+        const filteredData = fasCardData.filter(hist => {
+            const utcms = Number(Date.parse(hist.StatusTime));
+            const pstms = utcms - 25200000;
+            const pst = new Date(pstms);
+            //above code convert UTC time to PST
+            const machDate = new Date(pst).toLocaleDateString("en-US", apiOption);
+            if (machDate === sampleDate) {
+                return true;
+            }
+            else{
+                return false;
+            }
+        })
+        return filteredData;
+    }
+
+    async filterRecords({fasCardData, caseDate}){
+        //above code get yesterday date
+        const sampleDate = caseDate.toLocaleDateString("en-US", apiOption);
         const filteredData = fasCardData.filter(hist => {
             const utcms = Number(Date.parse(hist.StatusTime));
             const pstms = utcms - 25200000;
@@ -168,6 +196,56 @@ class MachineService{
         }
     }
 
+    async analyzeError({fasCardData}){
+        try {
+            const filtered = fasCardData.filter(record => {
+                if((record.MaintError == 0) && (record.MlvMachError == 0)){
+                    return false;
+                } else {
+                    return true;
+                }
+            });
+            let machErrors = [];
+            const messages = ['Machine OK', 'Unable to communicate with machine', 'Machine leaking water', 'Machine stuck in cycle', 'Machine not filling', 'Machine not draining', 'Machine not heating', 'Machine door problem']; 
+            const mivmessages = {
+                100: "Part or all of config was rejected",
+                101: "One or more messages timed out or were rejected",
+                999: "Unknown machine problem",
+                1000: "Machine code indicates error"
+            }
+            for (let i = 0; i < filtered.length; i++){
+                let mainErrorCode = filtered[i].MaintError;
+                let mivMatchErrorCode = filtered[i].MlvMachError;
+                const utcms = Number(Date.parse(filtered[i].StatusTime));
+                const pstms = utcms - 25200000;
+                const pstStatus = new Date(pstms);
+                if (mainErrorCode != 0){
+                    if(mainErrorCode > 7){
+                        message = mivmessages[mainErrorCode];
+                        const mainError = {errorType: "MAINERROR", message, time: pstStatus};
+                        machErrors.push(mainError);
+                    }else {
+                        const mainError = {errorType: "MAINERROR", message: messages[mainErrorCode], time: pstStatus};
+                        machErrors.push(mainError);
+                    }
+                }
+                if (mivMatchErrorCode != 0){
+                    if(mivMatchErrorCode > 7){
+                        message = mivmessages[mivMatchErrorCode];
+                        const mivError = {errorType: "MIVMatchError", message, time: pstStatus};
+                        machErrors.push(mivError);
+                    }else {
+                        const mivError = {errorType: "MIVMatchError", message: messages[mivMatchErrorCode], time: pstStatus};
+                        machErrors.push(mivError);
+                    }
+                }
+            }
+            return machErrors;
+        } catch (err) {
+            throw new APIError('Data Not found', err);
+        }
+    }
+
     async analyzeYesterdayLine({machineId}){
         try {
             const yesterday = await this.getYesterdayDate();
@@ -184,6 +262,26 @@ class MachineService{
                 }
             })
             return lineData;
+        } catch (err) {
+            throw new APIError('Data Not found', err);
+        }
+    }
+
+    async analyzeGantt({fasCardData}){
+        try {
+            const ganttData = fasCardData.map(async function(d){
+                const time = await this.converUTCToPST(d.StatusTime);
+                const startTime = await this.converUTCToPST(d.StartTime);
+                const endTime = await this.converUTCToPST(d.FinishTime);
+                return {
+                    code: d.Status,
+                    message: d.StatusText,
+                    time: time,
+                    startTime: startTime,
+                    endTime: endTime
+                }
+            })
+            return ganttData;
         } catch (err) {
             throw new APIError('Data Not found', err);
         }
@@ -296,6 +394,65 @@ class MachineService{
             }
         } catch (err) {
             throw new APIError('Data Not found', err);
+        }
+    }
+
+    async analyzeSupportCase({supportCaseId, machineNo, caseDate}){
+        try {
+            const machineId = await this.convertMachNoToMachId(machineNo);
+            await axios({
+                method: 'post',
+                url: "https://m.fascard.com/api/AuthToken",
+                data:{
+                    'UserName': `${FASCARD_USERNAME}`,
+                    "Password": `${FASCARD_PASSWORD}`
+                }
+            })
+            .then(async (authRes) => {
+                token = authRes.data.Token;
+                for(let i = 0; i < machCode.length; i++){
+                    await axios({
+                        method: 'get',
+                        headers: { Authorization: `Bearer ${token}` },
+                        url: `https://m.fascard.com/api/Machine/${machineId}/History?Limit=1000`,
+                    })
+                    .then(async (machRes) => {
+                        const filtered = await this.filterRecords({fasCardData: machRes.data, caseDate});
+                        const errorData = await this.analyzeError({fasCardData: filtered});
+                        const ganttData = await this.analyzeGantt({fasCardData: filtered});
+                        const payload = {
+                            event: "ADD_CASE_ANALYSES",
+                            data: {supportCaseId, errorData, ganttData }
+                        }
+                        PublishMessage(this.channel, SUPPORT_CASE_BINDING_KEY, JSON.stringify(payload));
+                    })
+                    .catch((err) => {
+                        throw new APIError('Data Not found', err);
+                    })
+                }})
+            .catch((err) => {
+                throw new APIError('Data Not found', err);
+            })
+        } catch(err) {
+            throw new APIError('Data Not found', err);
+        }
+        
+    }
+
+    async SubscribeEvents(payload){
+
+        payload = JSON.parse(payload);
+
+        const {event, data} = payload;
+
+        const {supportCaseId, machineNo, caseDate} = JSON.parse(data);
+
+        switch(event){
+            case "ANALYZE_SUPPORT_CASE":
+                this.analyzeSupportCase({supportCaseId, machineNo, caseDate}) 
+                break;
+            default:
+                break;
         }
     }
 }

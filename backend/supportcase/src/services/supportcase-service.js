@@ -1,9 +1,12 @@
 const { SupportCaseRepository } = require("../database");
-const { FormateData, GeneratePassword, GenerateSalt, GenerateSignature, ValidatePassword } = require('../utils');
+const { FormateData, PublishMessage } = require('../utils');
 const { APIError } = require('../utils/app-errors');
+const {EMPLOYEE_BINDING_KEY} = require('../config');
 
 class SupportCaseService {
-    constructor(){
+    
+    constructor(channel){
+        this.channel = channel;
         this.repository = new SupportCaseRepository();
     }
 
@@ -120,17 +123,30 @@ class SupportCaseService {
         }
     }
 
+    async addCaseAnalyses({supportCaseId, errorData, ganttData}){
+        try{
+            await this.repository.updateSupportCaseANALYSES({supportCaseId, errorData, ganttData});
+            const payload = {
+                event: 'GET_ALL_EMPLOYEE_EMAIL',
+                data: {employeeEvent: 'NEW_CASE_NOTIFICATION'}
+            }
+            PublishMessage(this.channel, EMPLOYEE_BINDING_KEY, JSON.stringify(payload));
+        } catch (err) {
+            throw new APIError('Data Not found', err);
+        }
+    }
+
     async SubscribeEvents(payload){
  
         payload = JSON.parse(payload);
 
         const { event, data } =  payload;
 
-        const { userId, customerId } = data;
+        const { supportCaseId, errorData, ganttData  } = data;
 
         switch(event){
-            case 'REMOVE_CUSTOMER':
-                this.removeCustomer(userId, customerId);
+            case 'ADD_CASE_ANALYSES':
+                this.removeCustomer({supportCaseId, errorData, ganttData});
                 break;
             default:
                 break;

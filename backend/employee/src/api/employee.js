@@ -2,10 +2,13 @@ const EmployeeService = require('../services/employee-service');
 const {Authenticate, Authorize } = require('./middlewares/auth');
 const axios = require('axios');
 const { APIError, STATUS_CODES } = require('../utils/app-errors');
+const {PublishMessage, SubscribeMessage} = require('../utils');
+const {SUPPORT_CASE_BINDING_KEY, NOTIFICATION_BINDING_KEY} = require('../config');
 
-module.exports = (app) => {
+module.exports = (app, channel) => {
     
-    const service = new EmployeeService();
+    const service = new EmployeeService(channel);
+    SubscribeMessage(channel, service, SUPPORT_CASE_BINDING_KEY);
 
     app.post('/signup', async (req, res, next) => {
         try{

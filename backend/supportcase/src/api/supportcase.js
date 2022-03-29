@@ -1,9 +1,12 @@
 const SupportCaseService = require('../services/supportcase-service');
 const {Authenticate, Authorize } = require('./middlewares/auth');
+const {PublishMessage, SubscribeMessage} = require('../utils');
+const {MACHINE_BINDING_KEY, NOTIFICATION_BINDING_KEY} = require('../config');
 
-module.exports = (app) => {
+module.exports = (app, channel) => {
     
-    const service = new SupportCaseService();
+    const service = new SupportCaseService(channel);
+    SubscribeMessage(channel, service, MACHINE_BINDING_KEY);
 
     app.post('/submit/solution', Authenticate, async (req, res, next) => {
         try{

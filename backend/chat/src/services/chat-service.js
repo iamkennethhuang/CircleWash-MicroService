@@ -41,6 +41,23 @@ class ChatService{
             throw new APIError('Data Not found', err);
         }
     }
+
+    async SubscribeEvents(payload){
+
+        payload = JSON.parse(payload);
+        
+        const {event, data} = payload;
+
+        const {supportCaseId, subject, information, authorEmail, recipientEmail, senderRole, sender} = data;
+
+        switch(event){
+            case "SEND_EMAIL_MESSAGE":
+                this.sendChatMessageToUser({supportCaseId, subject, information, authorEmail, recipientEmail, senderRole, sender}) //need to be complete
+                break;
+            default:
+                break;
+        }
+    }
 }
 
 module.exports = ChatService;

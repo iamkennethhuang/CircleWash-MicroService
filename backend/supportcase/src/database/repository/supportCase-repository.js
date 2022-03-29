@@ -26,7 +26,9 @@ class SupportCaseRepository {
                 open: true,
                 supportInfo: newSupportInfo,
                 supportInfoId: newSupportInfoData._id,
-                status: 'UNHANDLED'
+                status: 'UNHANDLED',
+                errorData: [],
+                ganttData: []
             })
             const newSupportCaseData = await newSupportCase.save();
             return newSupportCaseData;
@@ -221,6 +223,15 @@ class SupportCaseRepository {
             return deletedRequest;
         } catch (err){
             throw new APIError('API Error', STATUS_CODES.INTERNAL_ERROR, 'Error on Deny Support Case Request');
+        }
+    }
+
+    async updateSupportCaseANALYSES({supportCaseId, errorData, ganttData}){
+        try{
+            const preUpdateInfo = await SupportCase.findByIdAndUpdate(supportCaseId, {errorData: errorData, ganttData: ganttData});
+            return preUpdateInfo;
+        } catch (err){
+            throw new APIError('API Error', STATUS_CODES.INTERNAL_ERROR, 'Error on Update Support Case Status');
         }
     }
 }

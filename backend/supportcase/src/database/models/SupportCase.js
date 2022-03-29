@@ -27,7 +27,19 @@ const supoortCase = new Schema({
     },
     status: {
         type: String,
-    }
+    },
+    errorData: [{
+        errorType: {type: String},
+        message: {type: String},
+        time: {type: Date}
+    }],
+    ganttData: [{
+        code: {type: Number},
+        message: {type:String},
+        time: {type: Date},
+        startTime: {type: Date},
+        endTime: {type: Date}
+    }]
 },{
     timestamps: true,
 })
