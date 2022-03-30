@@ -49,6 +49,7 @@ module.exports.CreateChannel = async() => {
     try{
         const connection = await amqplib.connect(MESSAGE_BROKER_URL);
         const channel = await connection.createChannel();
+        //create exchange
         await channel.assertExchange(EXCHANGE_NAME, 'direct', false);
         return channel;
     } catch (err) {
@@ -59,7 +60,10 @@ module.exports.CreateChannel = async() => {
 //publish messages
 module.exports.PublishMessage = async(channel, binding_key, message) => {
     try{
-        await channel.publish(EXCHANGE_NAME, binding_key, Buffer.from(message));
+        //publish message to exchange
+        //second arguement is actually a routing key, binding key is used for binding queue not pushining message,
+        //but they have to match
+        await channel.publish(EXCHANGE_NAME, binding_key, Buffer.from(message)); // binding key specify which specific queue we want to push the message to 
         console.log('published message: ' + message);
     } catch (err) {
         throw err;
@@ -69,11 +73,16 @@ module.exports.PublishMessage = async(channel, binding_key, message) => {
 //subscribe messages
 module.exports.SubscribeMessage = async(channel, service, binding_key) => {
     try {
-        const appQueue = await channel.assertQueue(QUEUE_NAME);
+        //check whether the specified queue exist, if not, it will declare a new queue with the specified name in the channel
+        const appQueue = await channel.assertQueue(QUEUE_NAME); //create queue
+        //bindqueue tell exchange to send message to our queue
+        //another way of thinking about this is identifying which type of message the queue is interested in the exchange
+        //relationship between exchange and a queue is called a binding 
         channel.bindQueue(appQueue.queue, EXCHANGE_NAME, binding_key);
         channel.consume(appQueue.queue, data => {
             console.log('received data');
             console.log(data.content.toString());
+            service.SubscribeEvents(data.content.toString());
             channel.ack(data);
         })
     } catch (err) {

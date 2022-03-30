@@ -103,7 +103,7 @@ class MachineService{
 
     async filterRecords({fasCardData, caseDate}){
         //above code get yesterday date
-        const sampleDate = caseDate.toLocaleDateString("en-US", apiOption);
+        const sampleDate = new Date(caseDate).toLocaleDateString("en-US", apiOption);
         const filteredData = fasCardData.filter(hist => {
             const utcms = Number(Date.parse(hist.StatusTime));
             const pstms = utcms - 25200000;
@@ -269,10 +269,10 @@ class MachineService{
 
     async analyzeGantt({fasCardData}){
         try {
-            const ganttData = fasCardData.map(async function(d){
-                const time = await this.converUTCToPST(d.StatusTime);
-                const startTime = await this.converUTCToPST(d.StartTime);
-                const endTime = await this.converUTCToPST(d.FinishTime);
+            const ganttData = fasCardData.map(async (d) => {
+                const time = await this.converUTCToPST({date: d.StatusTime});
+                const startTime = await this.converUTCToPST({date: d.StartTime});
+                const endTime = await this.converUTCToPST({date: d.FinishTime});
                 return {
                     code: d.Status,
                     message: d.StatusText,
@@ -409,27 +409,26 @@ class MachineService{
                 }
             })
             .then(async (authRes) => {
-                token = authRes.data.Token;
-                for(let i = 0; i < machCode.length; i++){
-                    await axios({
-                        method: 'get',
-                        headers: { Authorization: `Bearer ${token}` },
-                        url: `https://m.fascard.com/api/Machine/${machineId}/History?Limit=1000`,
-                    })
-                    .then(async (machRes) => {
-                        const filtered = await this.filterRecords({fasCardData: machRes.data, caseDate});
-                        const errorData = await this.analyzeError({fasCardData: filtered});
-                        const ganttData = await this.analyzeGantt({fasCardData: filtered});
-                        const payload = {
-                            event: "ADD_CASE_ANALYSES",
-                            data: {supportCaseId, errorData, ganttData }
-                        }
-                        PublishMessage(this.channel, SUPPORT_CASE_BINDING_KEY, JSON.stringify(payload));
-                    })
-                    .catch((err) => {
-                        throw new APIError('Data Not found', err);
-                    })
-                }})
+                let token = authRes.data.Token;
+                await axios({
+                    method: 'get',
+                    headers: { Authorization: `Bearer ${token}` },
+                    url: `https://m.fascard.com/api/Machine/${machineId}/History?Limit=1000`,
+                })
+                .then(async (machRes) => {
+                    const filtered = await this.filterRecords({fasCardData: machRes.data, caseDate});
+                    const errorData = await this.analyzeError({fasCardData: filtered});
+                    const ganttData = await this.analyzeGantt({fasCardData: filtered});
+                    const payload = {
+                        event: "ADD_CASE_ANALYSES",
+                        data: {supportCaseId, errorData, ganttData }
+                    }
+                    PublishMessage(this.channel, SUPPORT_CASE_BINDING_KEY, JSON.stringify(payload));
+                })
+                .catch((err) => {
+                    throw new APIError('Data Not found', err);
+                })
+                })
             .catch((err) => {
                 throw new APIError('Data Not found', err);
             })
@@ -445,7 +444,7 @@ class MachineService{
 
         const {event, data} = payload;
 
-        const {supportCaseId, machineNo, caseDate} = JSON.parse(data);
+        const {supportCaseId, machineNo, caseDate} = data;
 
         switch(event){
             case "ANALYZE_SUPPORT_CASE":

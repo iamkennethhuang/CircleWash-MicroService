@@ -1,12 +1,12 @@
 const MachineService = require('../services/machine-service');
 const {Authenticate, Authorize } = require('./middlewares/auth');
 const {PublishMessage, SubscribeMessage} = require('../utils');
-const {SUPPORT_CASE_BINDING_KEY} = require('../config');
+const {SUPPORT_CASE_BINDING_KEY, MACHINE_BINDING_KEY} = require('../config');
 
 module.exports = (app, channel) => {
     
     const service = new MachineService(channel);
-    SubscribeMessage(channel, service, SUPPORT_CASE_BINDING_KEY);
+    SubscribeMessage(channel, service, MACHINE_BINDING_KEY);
 
     app.get('/daily/analysis', Authenticate, async (req, res, next) => {
         try{

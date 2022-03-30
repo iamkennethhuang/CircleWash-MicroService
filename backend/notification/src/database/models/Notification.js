@@ -12,9 +12,9 @@ const notification = new Schema({
     authorEmail: {
         type: String,
     },
-    recipientEmail: {
+    recipientEmail: [{
         type: String,
-    },
+    }],
     sentTime:{
         type: Date,
     },

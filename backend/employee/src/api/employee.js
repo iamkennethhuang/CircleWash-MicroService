@@ -3,12 +3,12 @@ const {Authenticate, Authorize } = require('./middlewares/auth');
 const axios = require('axios');
 const { APIError, STATUS_CODES } = require('../utils/app-errors');
 const {PublishMessage, SubscribeMessage} = require('../utils');
-const {SUPPORT_CASE_BINDING_KEY, NOTIFICATION_BINDING_KEY} = require('../config');
+const {EMPLOYEE_BINDING_KEY, NOTIFICATION_BINDING_KEY} = require('../config');
 
 module.exports = (app, channel) => {
     
     const service = new EmployeeService(channel);
-    SubscribeMessage(channel, service, SUPPORT_CASE_BINDING_KEY);
+    SubscribeMessage(channel, service, EMPLOYEE_BINDING_KEY);
 
     app.post('/signup', async (req, res, next) => {
         try{
@@ -42,6 +42,14 @@ module.exports = (app, channel) => {
                             return res.send(data);
                         }else{
                             const {data} = await service.signUpPendingEmployee({email, password, firstName, lastName});
+                            const adminEmails = await service.getAllAdminEmails();
+                            if (data !== null){
+                                const payload = {
+                                    event: 'NEW_EMPLOYEE_NOTIFICATION',
+                                    data: {recipientEmail: adminEmails}
+                                }
+                                PublishMessage(channel, NOTIFICATION_BINDING_KEY, JSON.stringify(payload));
+                            }
                             return res.send(data);
                         }
                     }else{
@@ -102,9 +110,13 @@ module.exports = (app, channel) => {
 
     app.put('/role', Authenticate, Authorize, async (req, res, next) => {
         try{
-            const {_id} = req.user;
-            const {role} = req.body;
-            const {data} = await service.manageRole(_id, role);
+            const {employeeId, role} = req.body;
+            const {data} = await service.manageRole({_id: employeeId, role});
+            const payload = {
+                event: 'ROLE_CHANGE_NOTIFICATION',
+                data: {recipientEmail: data.email}
+            }
+            PublishMessage(channel, NOTIFICATION_BINDING_KEY, JSON.stringify(payload));
             return res.send(data);
         } catch (err) {
             next(err);
@@ -136,6 +148,11 @@ module.exports = (app, channel) => {
             const {_id} = req.user;
             const {pendingId} = req.body;
             const {data} = await service.approvePendingEmployee(_id, pendingId);
+            const payload = {
+                event: 'NEW_EMPLOYEE_APPROVE_NOTIFICATION',
+                data: {recipientEmail: data.email}
+            }
+            PublishMessage(channel, NOTIFICATION_BINDING_KEY, JSON.stringify(payload));
             return res.send(data);
         } catch (err) {
             next(err);
@@ -146,6 +163,11 @@ module.exports = (app, channel) => {
         try{
             const {pendingId} = req.body;
             const {data} = await service.denyPendingEmployee(pendingId);
+            const payload = {
+                event: 'NEW_EMPLOYEE_DENY_NOTIFICATION',
+                data: {recipientEmail: data.email}
+            }
+            PublishMessage(channel, NOTIFICATION_BINDING_KEY, JSON.stringify(payload));
             return res.send(data);
         } catch (err) {
             next(err);

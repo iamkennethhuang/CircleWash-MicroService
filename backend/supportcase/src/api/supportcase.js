@@ -1,12 +1,12 @@
 const SupportCaseService = require('../services/supportcase-service');
 const {Authenticate, Authorize } = require('./middlewares/auth');
 const {PublishMessage, SubscribeMessage} = require('../utils');
-const {MACHINE_BINDING_KEY, NOTIFICATION_BINDING_KEY} = require('../config');
+const {MACHINE_BINDING_KEY, NOTIFICATION_BINDING_KEY, SUPPORT_CASE_BINDING_KEY, EMPLOYEE_BINDING_KEY} = require('../config');
 
 module.exports = (app, channel) => {
     
     const service = new SupportCaseService(channel);
-    SubscribeMessage(channel, service, MACHINE_BINDING_KEY);
+    SubscribeMessage(channel, service, SUPPORT_CASE_BINDING_KEY);
 
     app.post('/submit/solution', Authenticate, async (req, res, next) => {
         try{
@@ -24,6 +24,13 @@ module.exports = (app, channel) => {
             const {supportCaseId, solutionType, amount, refundType, summary} = req.body;
             const {_id} = req.user;
             const {data} = await service.submitRequest(_id, {supportCaseId, solutionType, amount, refundType, summary});
+            const payload = {
+                event: "GET_ALL_ADMIN_EMAIL",
+                data: {
+                    employeeEvent: "NEW_REQUEST_NOTIFICATION",
+                }
+            }
+            PublishMessage(channel, EMPLOYEE_BINDING_KEY, JSON.stringify(payload));
             return res.send(data);
         } catch (err) {
             next(err);
@@ -35,6 +42,15 @@ module.exports = (app, channel) => {
             const date = new Date();
             const {firstName, lastName, email, phone, machineType, machineNo, amount, description, payType, fasCardNum, creditCardNum} = req.body;
             const {data} = await service.submitSupportCase({firstName, lastName, email, phone, machineType, machineNo, amount, description, date, payType, fasCardNum, creditCardNum});
+            const payload = {
+                event: 'ANALYZE_SUPPORT_CASE',
+                data: {
+                    supportCaseId: data._id, 
+                    machineNo: machineNo,
+                    caseDate: date
+                }
+            }
+            PublishMessage(channel, MACHINE_BINDING_KEY, JSON.stringify(payload));
             return res.send(data);
         } catch (err){
             next(err);

@@ -74,6 +74,7 @@ module.exports.SubscribeMessage = async(channel, service, binding_key) => {
         channel.consume(appQueue.queue, data => {
             console.log('received data');
             console.log(data.content.toString());
+            service.SubscribeEvents(data.content.toString());
             channel.ack(data);
         })
     } catch (err) {

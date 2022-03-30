@@ -1,7 +1,7 @@
 const { NotificationRepository } = require("../database");
 const { FormateData, GeneratePassword, GenerateSalt, GenerateSignature, ValidatePassword } = require('../utils');
 const { APIError } = require('../utils/app-errors');
-const {SENDGRID_API_KEY} = require('../config');
+const {SENDGRID_API_KEY, CARE_EMAIL} = require('../config');
 const client = require('@sendgrid/mail');
 
 client.setApiKey(SENDGRID_API_KEY);
@@ -16,7 +16,7 @@ class NotificationService{
 
         const subject = 'New Support Case Notification';
         const information = 'There is a new support case submitted.';
-        const authorEmail = '';
+        const authorEmail = CARE_EMAIL;
         const {recipientEmail} = userInputs;
         const sentTime = new Date();
 
@@ -86,7 +86,7 @@ class NotificationService{
         const subject = 'Role Updated Notification';
         const {recipientEmail} = userInputs;
         const information = 'Your account role have been updated';
-        const authorEmail = '';
+        const authorEmail = CARE_EMAIL;
         const sentTime = new Date();
 
         try{
@@ -105,7 +105,7 @@ class NotificationService{
         }
     }
 
-    async sendNewPendingAccountNotification(){
+    async sendNewPendingAccountNotification(userInputs){
         const subject = 'New Pending Account Notification';
         const {recipientEmail} = userInputs; //all admin account
         const information = 'There is a new account that is waiting for approve';
@@ -128,11 +128,11 @@ class NotificationService{
         }
     }
 
-    async sendNewPendingCaseRequestNotification(){
+    async sendNewPendingCaseRequestNotification(userInputs){
         const subject = 'New Pending Case Request Notification';
         const {recipientEmail} = userInputs; // all admin account
         const information = 'There is a new Case request submitted by employee waiting for refund approve';
-        const authorEmail = '';
+        const authorEmail = CARE_EMAIL;
         const sentTime = new Date();
 
         try{

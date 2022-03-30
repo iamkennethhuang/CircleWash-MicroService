@@ -65,7 +65,7 @@ class EmployeeService{
             if(!existingEmployee){
                 let status = true;
                 const newPendingEmployee = await this.pRepository.createPendingEmployee({ email, password, firstName, lastName, status});
-                return FormateData({id: newPendingEmployee._id});
+                return FormateData({newPendingEmployee});
             }
             return FormateData(null);
         } catch(err){
@@ -123,7 +123,7 @@ class EmployeeService{
         }
     }
 
-    async manageRole(_id, role){
+    async manageRole({_id, role}){
         try{
             const result = await this.repository.updateEmployeeRole({_id, role});
             return FormateData(result);
@@ -154,7 +154,7 @@ class EmployeeService{
         }
     }
 
-    async getAllEmployeeEmails({employeeEvent}){
+    async getAllEmployeeEmailsWithEvent({employeeEvent}){
         try{
             const allEmployee = await this.repository.findAllEmployee();
             const employeeEmails = allEmployee.map(function(employee){
@@ -162,7 +162,7 @@ class EmployeeService{
             })
             const payload = {
                 event: employeeEvent,
-                data: employeeEmails
+                data: {recipientEmail: employeeEmails}
             }
             PublishMessage(this.channel, NOTIFICATION_BINDING_KEY, JSON.stringify(payload))
         } catch(err){
@@ -170,7 +170,7 @@ class EmployeeService{
         }
     }
 
-    async getAllAdminEmails({employeeEvent}){
+    async getAllAdminEmailsWithEvent({employeeEvent}){
         try{
             const allAdmin = await this.repository.findAllAdmin();
             const adminEmails = allAdmin.map(function(employee){
@@ -178,13 +178,24 @@ class EmployeeService{
             })
             const payload = {
                 event: employeeEvent,
-                data: adminEmails
+                data: {recipientEmail: adminEmails}
             }
             PublishMessage(this.channel, NOTIFICATION_BINDING_KEY, JSON.stringify(payload))
         } catch(err){
             throw new APIError('Data Not found', err);
-        }
-        
+        } 
+    }
+
+    async getAllAdminEmails(){
+        try{
+            const allAdmin = await this.repository.findAllAdmin();
+            const adminEmails = allAdmin.map(function(employee){
+                return employee.email;
+            })
+            return adminEmails;
+        } catch(err){
+            throw new APIError('Data Not found', err);
+        } 
     }
 
     async SubscribeEvents(payload){
@@ -197,10 +208,10 @@ class EmployeeService{
 
         switch(event){
             case 'GET_ALL_EMPLOYEE_EMAIL':
-                this.getAllEmployeeEmails({employeeEvent});
+                this.getAllEmployeeEmailsWithEvent({employeeEvent});
                 break;
             case 'GET_ALL_ADMIN_EMAIL':
-                this.getAllAdminEmails({employeeEvent});
+                this.getAllAdminEmailsWithEvent({employeeEvent});
                 break;
             default:
                 break;

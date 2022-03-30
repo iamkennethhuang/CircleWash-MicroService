@@ -143,10 +143,10 @@ class SupportCaseService {
         const { event, data } =  payload;
 
         const { supportCaseId, errorData, ganttData  } = data;
-
+  
         switch(event){
             case 'ADD_CASE_ANALYSES':
-                this.removeCustomer({supportCaseId, errorData, ganttData});
+                this.addCaseAnalyses({supportCaseId, errorData, ganttData});
                 break;
             default:
                 break;
