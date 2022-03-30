@@ -140,7 +140,7 @@ class MachineRepository {
                 let newSatellite = satellite + pieData.satellite;
                 let newReader = reader + pieData.reader;
                 let newData = {offline: newOffline, disabled: newDisabled, idle: newIdle, running: newRunning, diagnostic: newDiagnostic, deuplicate: newDeuplicate, error: newError, firmwareDoesntExist: newFirmwareDoesntExist, satellite: newSatellite, reader: newReader};
-                const oldMonthlyAnalysis = await MonthlyAnalysis.findOneAndUpdate({month: month, year: year} , {pieData: newData});
+                const oldMonthlyAnalysis = await MonthlyAnalysis.findOneAndUpdate({machineId: machineId, month: month, year: year} , {pieData: newData});
                 return oldMonthlyAnalysis;
             }
         }catch(err){
