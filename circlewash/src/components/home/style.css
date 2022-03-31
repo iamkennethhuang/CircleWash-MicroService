@@ -1,0 +1,9 @@
+.hero-image {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100vw;
+    height: calc(100vh - 100px);
+    margin-bottom: 50px;
+    max-height: 400px;
+}

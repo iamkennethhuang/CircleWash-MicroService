@@ -37,6 +37,15 @@ class SupportCaseService {
         }
     }
 
+    async getAllRequest(){
+        try{
+            const allRequest = await this.repository.findAllRequest();
+            return FormateData(allRequest);
+        } catch(err){
+            throw new APIError('Data Not found', err);
+        }
+    }
+
     async getAllSuppportCaseByStatus(status, order){
         try{
             const allSupportCaseByStatus = await this.repository.findAllSupportCaseByStatus({status, order});

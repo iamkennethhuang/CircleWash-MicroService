@@ -10,7 +10,7 @@ module.exports = (app, channel) => {
 
     app.get('/daily/analysis', Authenticate, async (req, res, next) => {
         try{
-            const {machNo, day, month, year} = req.body;
+            const {machNo, day, month, year} = req.query;
             const machineId = await service.convertMachNoToMachId(machNo);
             const dailyAnalysis = await service.getDailyAnalyses(machineId, day, month, year);
             return res.send(dailyAnalysis);
@@ -21,7 +21,7 @@ module.exports = (app, channel) => {
 
     app.get('/monthly/analysis', Authenticate, async (req, res, next) => {
         try{
-            const {machNo, month, year} = req.body;
+            const {machNo, month, year} = req.query;
             const machineId = await service.convertMachNoToMachId(machNo);
             const monthlyAnalysis = await service.getMonthAnalyses(machineId, month, year);
             return res.send(monthlyAnalysis);
@@ -33,11 +33,11 @@ module.exports = (app, channel) => {
     app.get('/monthly/analysis/all', Authenticate, async (req, res, next) => {
         try{
             const allMonthlyAnalyses = [];
-            const {month, year} = req.body;
+            const {month, year} = req.query;
             for (let i = 1; i < 71; i++){
                 const machineId = await service.convertMachNoToMachId(i);
-                const monthlyAnalysis = await service.getMonthAnalyses(machineId, month, year);
-                allMonthlyAnalyses.push(monthlyAnalysis);
+                const {data} = await service.getMonthAnalyses(machineId, month, year);
+                allMonthlyAnalyses.push(data);
             }
             return res.send(allMonthlyAnalyses);
         }catch (err) {

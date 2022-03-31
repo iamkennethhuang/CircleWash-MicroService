@@ -46,6 +46,15 @@ class SupportCaseRepository {
         }
     }
 
+    async findAllRequest(){
+        try{
+            const allRequest = await Request.find({approve: false});
+            return allRequest;
+        }catch(err){
+            throw new APIError('API Error', STATUS_CODES.INTERNAL_ERROR, 'Error on Finding Support Case');
+        }
+    }
+
     async findAllSupportCase(){
         try{
             const allSupportCase = await SupportCase.find({});
@@ -57,7 +66,7 @@ class SupportCaseRepository {
 
     async findAllSupportCaseByStatus({ status, order}){
         try{
-            const allSupportCaseByStatus = await SupportCase.find({status: status}).sort({createdAt: order})
+            const allSupportCaseByStatus = await SupportCase.find({status: status}).populate('supportInfo').sort({createdAt: order});
             return allSupportCaseByStatus;
         }catch(err){
             throw new APIError('API Error', STATUS_CODES.INTERNAL_ERROR, 'Error on Finding All Support Case By Status');
@@ -170,7 +179,8 @@ class SupportCaseRepository {
                 refundType: refundType,
                 staffId: _id,
                 summary: summary,
-                approve: false
+                approve: false,
+                supportCaseId: supportCaseId
             })
             const newRequest = await requestInfo.save();
             await SupportCase.findByIdAndUpdate(supportCaseId, {request: requestInfo, status: 'PENDING'});

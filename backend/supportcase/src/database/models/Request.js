@@ -21,6 +21,9 @@ const request = new Schema({
     approve: {
         type: Boolean,
     }, 
+    supportCaseId: {
+        type: String
+    }
 },{
     timestamps: true,
 })

@@ -26,7 +26,7 @@ class EmployeeService{
                 const validPassword = await ValidatePassword(password, existingEmployee.password, existingEmployee.salt);
                 if(validPassword){
                     const token = await GenerateSignature({ email: existingEmployee.email, _id: existingEmployee._id, role: existingEmployee.role});
-                    return FormateData({id: existingEmployee._id, token});
+                    return FormateData({id: existingEmployee._id, token, role: existingEmployee.role});
                 }
             }
             return FormateData(null);

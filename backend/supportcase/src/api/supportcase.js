@@ -39,8 +39,7 @@ module.exports = (app, channel) => {
 
     app.post('/submit', async (req, res, next) => {
         try{
-            const date = new Date();
-            const {firstName, lastName, email, phone, machineType, machineNo, amount, description, payType, fasCardNum, creditCardNum} = req.body;
+            const {firstName, lastName, email, phone, machineType, machineNo, amount, date, description, payType, fasCardNum, creditCardNum} = req.body;
             const {data} = await service.submitSupportCase({firstName, lastName, email, phone, machineType, machineNo, amount, description, date, payType, fasCardNum, creditCardNum});
             const payload = {
                 event: 'ANALYZE_SUPPORT_CASE',
@@ -59,7 +58,7 @@ module.exports = (app, channel) => {
 
     app.get('/single', Authenticate, async (req, res, next) => {
         try{
-            const {supportCaseId} = req.body;
+            const {supportCaseId} = req.query;
             const {data} = await service.getSupportCaseById({_id: supportCaseId});
             return res.send(data);
         } catch (err) {
@@ -78,7 +77,7 @@ module.exports = (app, channel) => {
 
     app.get('/status', Authenticate, async (req, res, next) => {
         try{
-            const {status, order} = req.body;
+            const {status, order} = req.query;
             const {data} = await service.getAllSuppportCaseByStatus(status, order);
             return res.send(data);
         } catch (err) {
@@ -89,6 +88,15 @@ module.exports = (app, channel) => {
     app.get('/summary', Authenticate, async (req, res, next) => {
         try{
             const {data} = await service.getSupportCaseSummary();
+            return res.send(data);
+        } catch (err) {
+            next(err);
+        }
+    })
+
+    app.get('/request/all', Authenticate, Authorize, async (req, res, next) => {
+        try{
+            const {data} = await service.getAllRequest();
             return res.send(data);
         } catch (err) {
             next(err);

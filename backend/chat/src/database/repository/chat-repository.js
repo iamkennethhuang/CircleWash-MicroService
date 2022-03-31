@@ -4,19 +4,18 @@ const { APIError, STATUS_CODES } = require('../../utils/app-errors');
 class ChatRepository {
 
     async createChat({supportCaseId}){
-        Chat.findOne({supportCaseId: supportCaseId}, async (err, doc) => {
-            if (err){
-                throw new APIError('API Error', STATUS_CODES.INTERNAL_ERROR, 'Unable to Create Chat');
-            }
-            if (!doc){
+        try{
+            const chatObject = await Chat.findOne({supportCaseId: supportCaseId});
+            if (chatObject === null){
                 const newChat = new Chat({
                     supportCaseId: supportCaseId,
                     emails: []
                 })
-                const newChatData = await newChat.save();
-                return newChatData;
+                await newChat.save();
             }
-        })
+        } catch(err) {
+            throw new APIError('API Error', STATUS_CODES.INTERNAL_ERROR, 'Unable to Create Chat');
+        }
     }
 
     async createEmail({supportCaseId, subject, information, authorEmail, recipientEmail, sentTime, senderRole, sender}){

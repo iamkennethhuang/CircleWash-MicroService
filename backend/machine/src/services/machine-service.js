@@ -269,10 +269,16 @@ class MachineService{
 
     async analyzeGantt({fasCardData}){
         try {
-            const ganttData = fasCardData.map(async (d) => {
-                const time = await this.converUTCToPST({date: d.StatusTime});
-                const startTime = await this.converUTCToPST({date: d.StartTime});
-                const endTime = await this.converUTCToPST({date: d.FinishTime});
+            const ganttData =  fasCardData.map((d) => {
+                const utcms = Number(Date.parse(d.StatusTime));
+                const pstms = utcms - 25200000;
+                const time = new Date(pstms);
+                const startUtcms = Number(Date.parse(d.StartTime));
+                const startPstms = startUtcms - 25200000;
+                const startTime = new Date(startPstms);
+                const finishUtcms = Number(Date.parse(d.FinishTime));
+                const finishPstms = finishUtcms - 25200000;
+                const endTime = new Date(finishPstms);
                 return {
                     code: d.Status,
                     message: d.StatusText,

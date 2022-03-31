@@ -22,7 +22,7 @@ module.exports = (app) => {
 
     app.get('/messages', Authenticate, async (req, res, next) => {
         try{
-            const {supportCaseId} = req.body;
+            const {supportCaseId} = req.query;
             const chatmessages = await service.getChatMessages({supportCaseId});
             return res.send(chatmessages);
         } catch (err) {
