@@ -23,7 +23,8 @@ function App() {
 
   useEffect(async () => {
     const token = await localstorageService.getLogInInfoWithExpiry('token');
-    axios({
+    if (token !== null) {
+      axios({
         method: 'get',
         headers: { Authorization: `Bearer ${token}` },
         url: 'http://localhost:8000/employee/profile'
@@ -34,6 +35,7 @@ function App() {
     .catch((error) => {
       console.log(error);
     })
+    }
   }, []);
 
   return (

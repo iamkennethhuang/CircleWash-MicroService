@@ -78,3 +78,39 @@ From the previous section, we have identified four aggregations, customer, machi
 Considering many other services might need to send notifications to clients or employees, I decided Notification would be an individual service. In the notification service, we can store all the notifications in a database for future review.
 
 ![system diagram](readmeImages/system.png)
+
+## Message Queue
+
+**Technology:** RabbitMq
+
+![rabbitmq diagram](readmeImages/rabbitmq.png)
+
+**Queue:**
+- Machine queue
+- Notification queue
+- Employee queue
+- Support_case queue
+
+**Producer:**
+- Support Case Service
+- Employee Service
+- Machine Service
+
+**Consumer:**
+- Machine Service
+- Notification Servicce
+- Employee Service
+- Support Case Service
+
+**Exchange:**
+- CUSTOMER_SUPPORT
+
+In my design, all microservice will share the same exchange, CUSTOMER_SUPPORT, with type direct. 
+
+Each consumer microservice will create its own queue with a different binding key that will accept different types of messages or tasks from the exchange.
+
+Each producer microservice will publish its messages or task with a specified binding key to the exchange waiting for other services to handle it.
+
+The image below is my design for the Rabbitmq I am currently using. Circle shapes represent a service, rectangle shapes represent a queue and the triangle represents the exchange that accepts all message and transfers it to a specific queue. 
+
+
