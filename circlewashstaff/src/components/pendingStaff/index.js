@@ -135,7 +135,7 @@ export default function PendingStaff(){
             <Container maxWidth='false'>
                 <Toolbar />
                 <Typography sx={{fontWeight: 700, fontSize: 30, mb:5}}>
-                    Memeber
+                    Pending Accounts
                 </Typography>
                 <Box sx={{display: 'flex', mb:5}}>
                     <TextField

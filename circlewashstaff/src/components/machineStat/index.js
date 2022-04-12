@@ -11,7 +11,7 @@ export default function MachineStat(){
     const [allPieData, setAllPieData] = useState();
     const navigate = useNavigate();
     const apiOptionMonth = {month: 'long'};
-
+    
     useEffect(async () => {
         const value = await localstorageService.getLogInInfoWithExpiry('login');
         const token = await localstorageService.getLogInInfoWithExpiry('token');
@@ -29,7 +29,6 @@ export default function MachineStat(){
             }
         })
         .then((res) => {  
-            console.log(res.data);
             setAllPieData(res.data);
         })
         .catch((err) => {

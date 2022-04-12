@@ -33,7 +33,7 @@ export default function CustomPie({data}){
         customPieData()
     }, [])
 
-    console.log(filteredData)
+
     return (
         (filteredData) ? (<ResponsiveContainer width="100%" height="100%">
           <PieChart width={400} height={400}>

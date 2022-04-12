@@ -22,9 +22,9 @@ export default function CustomGanttChart({ganttData}){
         })
         return data;
     }
-
+    console.log(ganttData)
     const options = {
-        height: 170,
+        height: 270,
       };
 
     return (

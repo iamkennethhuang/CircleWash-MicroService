@@ -38,14 +38,14 @@ export const menulist = (
             </ListItem> 
             <ListItem >
                 <ListItemButton >
-                    <Link href='/support'>
+                    <Link underline='none' href='/support' color='#000000'>
                         <ListItemText primary="Support" />
                     </Link>
                 </ListItemButton>
             </ListItem> 
             <ListItem >
                 <ListItemButton>
-                    <Link href='/contactus'>
+                    <Link underline='none' href='/contactus' color='#000000'>
                         <ListItemText primary="Contact Us" />
                     </Link>
                 </ListItemButton>    

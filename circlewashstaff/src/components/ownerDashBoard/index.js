@@ -25,6 +25,8 @@ export default function OwnerDashBoard(){
 
         if(value === true){
             setLoggedIn(true);
+        } else {
+            navigate('/signin');
         }
         axios({
             method: 'get',
@@ -40,10 +42,6 @@ export default function OwnerDashBoard(){
         })
         .catch((err) => console.log(err));
     }, []);
-
-    if(loggedIn === false){
-        navigate('/signin');
-    }
 
     return(
         <ThemeProvider theme={theme}> 

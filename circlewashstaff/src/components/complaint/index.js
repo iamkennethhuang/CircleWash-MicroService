@@ -137,7 +137,7 @@ export default function Complaint ({complaint}){
                                     Date: 
                                 </Typography>
                                 <Typography sx={{fontWeight: 300, fontSize: 16}}>
-                                    {new Date(complaint.date).toLocaleDateString("en-US", options)} 
+                                    {new Date(complaint.supportInfo.date).toLocaleDateString("en-US", options)} 
                                 </Typography>      
                             </Box>
                             <Box sx={{display: 'flex', justifyContent: 'space-between',}}>   

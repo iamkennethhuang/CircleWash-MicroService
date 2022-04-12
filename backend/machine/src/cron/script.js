@@ -46,7 +46,7 @@ module.exports.CronJobInsertMachine = async () => {
 }
 
 module.exports.CronJobRecriveMahineRecordsAndAnalyze = () => {
-    cron.schedule("30 06 * * *", async () => {
+    cron.schedule("40 02 * * *", async () => {
         console.log('Scheduler running...');
         await axios({
             method: 'post',

@@ -1,109 +1,67 @@
-<a name='Introduction'></a>
+<h1 align="center">Circle Wash Laundromat Website Repository</h1>
 
-# Introduction
-In this project, I will design a n-tier architecture web application for Circle Wash laundromat to increase customer loyalty, internal business productivity, and the operation's credibility. First, based on online reviews, customers have trouble filing complaints after business hours and experience difficulty getting a refund for machine malfunction. The website will provide fair online customer service handling customers' complaints. Increase internal business productivity; the website would offer scheduling services for picking up and dropping off laundries, eliminating staff picking up calls, and manually scheduling each laundry delivery. In addition, the scheduling service would provide an optimal delivery route for the driver to increase productivity. Lastly, the operation's policies and information are currently present to customers in posters scattered around the laundromat. A website can unify the details and communicate information clearly to the customers.
+[What Is It](#what-is-it)
 
-<a name='Use-Case'></a>
+[How To Use](#how-to-use)
 
-# System Design
-I am planning to create an N-tier architecture web application (microservice). In the following section, I will demonstrate the steps for designing and modeling the infrastructure of the circle wash and admin application. Strategy used for modeling microservice is domain-driven design.
+[Dependencies](#dependencies)
 
-<a name='Analyze-Domain'></a>
+[Purpose](#purpose)  
 
-## Analyze domain
-The diagram below is an analysis of the business domain. The diagram analysis diagram is designed with loosely coupling and high functional cohesion in mind, so new features in the future can be easily be integrated (aka delivery).
-![machine diagram](readmeImages/Machine.png)
-- Laundry Cleaning is at the center of the diagram because it’s the core service that Circle Wash is providing. 
-- Machine Management provides status analysis and error analysis on the machines.
-- FasCard is the payment system for the laundromat.
-- Support is a subdomain of laundry cleaning, where it provides customer support for machine malfunctions. It might provide more service in the future.
-- Employee system manages role and permission on laundromat employee accounts.
+[Collaborators](#collaborators)  
 
-<a name='Bounded-Context'></a>
+[Contact](#contact)
 
-## Bounded Context
-The diagram above shows a general relationship between each domain. But a system that has various functions, the relationship between each domain may differ. So creating multiple models representing the same real-world entity in different contexts. So bounded Context diagram can help identify boundaries within one big domain. In the diagram below, I grouped functionality that will share a single domain model into a dotted line circle.
+<a name='what-is-it'></a>
 
-![bounded context](readmeImages/boundedContext.png)
+# What Is It
+In this project, I designed a n-tier architecture web application for Circle Wash laundromat. First, based on online reviews, customers have trouble filing complaints after business hours and experience difficulty getting a refund for machine malfunction. The website will provide online customer service handling customers' complaints. 
 
-Bounded context isn’t isolated from each other. They are connected with a solid line that defines their relationship with each other. 
-- Support boundary depends on customer and employee to get information about the employees and customers. And, it depends on machine management to get machine analysis data on each support case. Finally, it depends on LaundryCleaning/FasCard to retrieve payment data (if there is any). 
-- Machine Management depends on FasCard to get all the machine data for analysis.
-- FasCard depends on LaundryCleaning to record all laundromat data (machine status, transaction…)
+**Who is the target audience?**
+- Laundromat Customer
+- Laundromat Staff
+- Laundromat Owner
+- Laundromat Staff Approver
 
-<a name='Define-entities,-aggregates,-and-services'></a>
+<a name='screenshot-of-the-website'></a>
 
-## Define entities, aggregates, and services
-**Scenarios:**
-- A customer can begin laundry cleaning with a credit card, coins, or FasCard laundry card.
-- When a laundry machine fails, customers can create a support case by submitting an online form. 
-- When a customer creates a support case, the system sends notifications to employees, the system gathers machine information, transaction information based on support information.
-- When the employee access the admin portal, they are provided with all the support cases analytics.
-- Employees can each support case in each individual case page on the admin website.
-- Employees are able to communicate with customers through individual case pages on the admin website.
-- Customers get email notifications when employees are communicating when through the admin website.
-- Customers can reply to the email, and the system will record the customer’s email reply and show the message on the admin website.
-- Employees can view machine analysis related to each support case on each individual case page.
-- Employees can resolve a support page by providing notes and solutions.
-- Customer is notified when their case is resolved.
+## Screenshot - Program GUI
 
-**Entities:**
-- Case
-- Customer
-- Employee
-- Machine
-- Machine Status
-- Notification
-- Chat
-- Solution
-Case, Customer, Employee, Machine, and Chat are all aggregates that represent transactional consistency boundaries. Machine Status is child entities of Machine. Notification and Solution are child entities of the Case.
+**Complaint Form UI**
+![form ui](readmeImages/form_ui.png)
 
-**Domain Events:**
-- Case Status
+**Administrative Portal Dashboard**
+![dashboard ui](readmeImages/dashboard.png)
 
-**Domain Service:**
-- n/a
+**Administrative Portal Profile page**
+![profile ui](readmeImages/profile.png)
 
-![define entities](readmeImages/defineEntities.png)
+**All Machine Status Analyzation Page**
+![machine status ui](readmeImages/machineStatus.png)
 
-The diagram above demonstrate entities, domain event, and domain service for Support bounded context.
+**Customer Support Chat Page**
+![chat ui](readmeImages/chat.png)
 
-<a name='Identify-Microservice'></a>
+**Complaint Details Page**
+![detail ui](readmeImages/complaint_detail.png)
 
-## Identify Microservice
-In this section, we will derive microservice from the domain model that we have previously defined. 
+**Complaint Request Page**
+![request ui](readmeImages/request.png)
 
-From the previous section, we have identified four aggregations, customer, machine, case, chat, and employee. According to DDD design aggregation is a good candidate for a service because it exhibits many characteristics of a well-designed microservice. 
+**Complaint Resolve Page**
+![resolve ui](readmeImages/resolved.png)
 
-Considering many other services might need to send notifications to clients or employees, I decided Notification would be an individual service. In the notification service, we can store all the notifications in a database for future review.
+<a name='uml-diagram'></a>
+
+## UML Diagram
+
+**System Diagram**
 
 ![system diagram](readmeImages/system.png)
 
-## Message Queue
-
-**Technology:** RabbitMq
+**Message Queue**
 
 ![rabbitmq diagram](readmeImages/rabbitmq.png)
-
-**Queue:**
-- Machine queue
-- Notification queue
-- Employee queue
-- Support_case queue
-
-**Producer:**
-- Support Case Service
-- Employee Service
-- Machine Service
-
-**Consumer:**
-- Machine Service
-- Notification Servicce
-- Employee Service
-- Support Case Service
-
-**Exchange:**
-- CUSTOMER_SUPPORT
 
 In my design, all microservice will share the same exchange, CUSTOMER_SUPPORT, with type direct. 
 
@@ -113,4 +71,90 @@ Each producer microservice will publish its messages or task with a specified bi
 
 The image below is my design for the Rabbitmq I am currently using. Circle shapes represent a service, rectangle shapes represent a queue and the triangle represents the exchange that accepts all message and transfers it to a specific queue. 
 
+<a name='how-to-use'></a>
+
+# How to use
+The following steps demenstrate how to run the project locally. 
+
+1. git clone https://github.com/iamkennethhuang/CircleWash-MicroService.git
+2. create sendgrid account and link it to a domain name
+3. create mongo database on mongodb atlas
+4. create a FasCard account with an admin role
+5. create rabbitmq cloud account
+6. cd backend and add all the environment variable in each file. The environment variables are specified below for each services.
+7. cd into each service folder in backend
+8. npm build and npm start
+9. cd into circlewash folder
+10. npm build and npm start
+11. cd into circlewashstaff folder
+12. npm build and npm start
+
+**Environment Variable For Each Services**
+- chat
+    - PORT
+    - APP_SECRET
+    - ATLAS_URL
+    - SENDGRID_API_KEY
+    - CARE_EMAIL
+    - MESSAGE_BROKER_URL
+- customer 
+    - PORT
+    - APP_SECRET
+    - ATLAS_URL
+- employee
+    - PORT
+    - APP_SECRET
+    - ATLAS_URL
+    - CRYPTR_KEY
+    - MESSAGE_BROKER_URL
+- machine
+    - PORT
+    - APP_SECRET
+    - ATLAS_URL
+    - FASCARD_USERNAME
+    - FASCARD_PASSWORD
+    - MESSAGE_BROKER_URL
+- notification
+    - PORT
+    - APP_SECRET
+    - ATLAS_URL
+    - SENDGRID_API_KEY
+    - CARE_EMAIL
+    - MESSAGE_BROKER_URL
+- support case
+    - PORT
+    - APP_SECRET
+    - ATLAS_URL
+    - MESSAGE_BROKER_URL
+
+<a name='dependencies'></a>
+
+# Dependencies
+
+- MongoDB Database Service
+- SendGrid (Email Delivery Service)
+- Rabbitmq (Message Broker)
+- FasCard Admin Account (API)
+- NPM installed on the running machine
+
+<a name='purpose'></a>
+
+# Purpose
+
+Circle Wash Website was created to serve two purpose:
+1. Documenting my learning process on web development.
+2. Provide a local laundromat with a website that have customer support features and machine analyzation feature.
+
+<a name='collaborators'></a>
+
+# Collaborators
+
+Developer - Kenneth Huang
+Design - Kenneth Huang
+
+<a name='contact'></a>
+
+# Contact
+
+You can contact Kenneth Huang through email: kenneth.jh@icloud.com
 
