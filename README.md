@@ -145,6 +145,9 @@ Circle Wash Website was created to serve two purpose:
 1. Documenting my learning process on web development.
 2. Provide a local laundromat with a website that have customer support features and machine analyzation feature.
 
+# CI/CD
+
+
 <a name='collaborators'></a>
 
 # Collaborators
