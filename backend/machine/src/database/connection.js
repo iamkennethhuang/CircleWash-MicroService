@@ -1,10 +1,10 @@
 const mongoose = require('mongoose');
-const { ATLAS_URI } = require('../config');
+const { MONGO_URI } = require('../config');
 
 module.exports = async() => {
 
     try {
-        await mongoose.connect(ATLAS_URI, {
+        await mongoose.connect(MONGO_URI, {
             useNewUrlParser: true,
             useUnifiedTopology: true,
         });
