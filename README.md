@@ -159,5 +159,13 @@ Design - Kenneth Huang
 
 # Contact
 
+# Docker Local Instruction
+
+- stop remove all docker container
+    - docker compose down
+
+- start all docker container
+    - docker compose up --build
+
 You can contact Kenneth Huang through email: kenneth.jh@icloud.com
 

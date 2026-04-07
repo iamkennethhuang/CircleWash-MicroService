@@ -1,25 +1,38 @@
 version: "0.1"
 
 services:
+  circlewash:
+    build: ./circlewash
+    ports:
+      - "${CIRCLEWASH_PUBLIC_FACING_PORT}:${CIRCLEWASH_PUBLIC_FACING_PORT}"
+    volumes:
+      - ./circlewash:/app
+      - /app/node_modules
+    environment:
+      - MONGO_URI=${MONGO_URI}
+      - PORT=${CIRCLEWASH_PUBLIC_FACING_PORT}
+    depends_on:
+      - mongo
+
   machine:
     build: ./backend/machine
     ports:
-      - "3000:3000"
+      - "${MACHINE_SERVICE_PORT}:${MACHINE_SERVICE_PORT}"
     volumes:
       - ./backend/machine:/app
       - /app/node_modules
     environment:
-      - MONGO_URI=mongodb://mongo:27017/mydb
-      - PORT=3000
+      - MONGO_URI=${MONGO_URI}
+      - PORT=${MACHINE_SERVICE_PORT}
       - APP_SECRET=''
       - ATLAS_URI=''
       - FASCARD_USERNAME=''
       - FASCARD_PASSWORD=''
-      - MESSAGE_BROKER_URL=amqp://guest:guest@rabbitmq:5672
-      - EXCHANGE_NAME=CUSTOMER_SUPPORT
-      - QUEUE_NAME=MACHINE_QUEUE
-      - SUPPORT_CASE_BINDING_KEY=SUPPORT_CASE_SERVICE
-      - MACHINE_BINDING_KEY=MACHINE_SERVICE
+      - MESSAGE_BROKER_URL=${RABBITMQ_URL}
+      - EXCHANGE_NAME=${RABBITMQ_EXCHANGE_NAME}
+      - QUEUE_NAME=${RABBITMQ_MACHINE_QUEUE_NAME}
+      - SUPPORT_CASE_BINDING_KEY=${RABBITMQ_MACHINE_ROUTING_KEY}
+      - MACHINE_BINDING_KEY=${RABBITMQ_MACHINE_QUEUE_BINDING_KEY}
     depends_on:
       - mongo
       - rabbitmq
@@ -27,7 +40,7 @@ services:
   mongo:
     image: mongo
     ports:
-      - "27017:27017"
+      - "${MONGO_PORT}:${MONGO_PORT}"
 
   rabbitmq:
     image: rabbitmq:latest
@@ -35,11 +48,11 @@ services:
     hostname: "rabbitmq"
     restart: always
     ports:
-      - "5672:5672"
-      - "15672:15672"
+      - "${RABBITMQ_PORT}:${RABBITMQ_PORT}"
+      - "${RABBITMQ_ADMIN_PORT}:${RABBITMQ_ADMIN_PORT}"
     environment:
-      RABBITMQ_DEFAULT_USER: guest
-      RABBITMQ_DEFAULT_PASS: guest
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
     healthcheck:
       test: ["CMD", "rabbitmqctl", "status"]
       interval: 10s
