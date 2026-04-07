@@ -1,16 +1,42 @@
 version: "0.1"
 
 services:
-  circlewash:
+  legacycirclewash:
     build: ./circlewash
     ports:
-      - "${CIRCLEWASH_PUBLIC_FACING_PORT}:${CIRCLEWASH_PUBLIC_FACING_PORT}"
+      - "${CIRCLEWASH_LEGACY_PUBLIC_FACING_PORT}:${CIRCLEWASH_LEGACY_PUBLIC_FACING_PORT}"
     volumes:
       - ./circlewash:/app
       - /app/node_modules
     environment:
       - MONGO_URI=${MONGO_URI}
-      - PORT=${CIRCLEWASH_PUBLIC_FACING_PORT}
+      - PORT=${CIRCLEWASH_LEGACY_PUBLIC_FACING_PORT}
+    depends_on:
+      - mongo
+
+  newcirclewash:
+    build: ./new-circlewash-frontend
+    ports:
+      - "${CIRCLEWASH_NEW_PUBLIC_FACING_PORT}:${CIRCLEWASH_NEW_PUBLIC_FACING_PORT}"
+    volumes:
+      - ./new-circlewash-frontend:/app
+      - /app/node_modules
+    environment:
+      - MONGO_URI=${MONGO_URI}
+      - PORT=${CIRCLEWASH_NEW_PUBLIC_FACING_PORT}
+    depends_on:
+      - mongo
+
+  circlewashstaff:
+    build: ./circlewashstaff
+    ports:
+      - "${CIRCLEWASH_ADMIN_PORTAL_PORT}:${CIRCLEWASH_ADMIN_PORTAL_PORT}"
+    volumes:
+      - ./circlewashstaff:/app
+      - /app/node_modules
+    environment:
+      - MONGO_URI=${MONGO_URI}
+      - PORT=${CIRCLEWASH_ADMIN_PORTAL_PORT}
     depends_on:
       - mongo
 
