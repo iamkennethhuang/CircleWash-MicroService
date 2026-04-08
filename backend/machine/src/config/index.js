@@ -8,7 +8,8 @@ if (process.env.NODE_ENV !== 'prod'){
 }
 
 module.exports = {
-
+    
+    MONGO_URI: process.env.MONGO_URI,
     PORT: process.env.PORT,
     APP_SECRET: process.env.APP_SECRET,
     ATLAS_URI: process.env.ATLAS_URI,
