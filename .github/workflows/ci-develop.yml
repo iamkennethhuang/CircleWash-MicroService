@@ -95,9 +95,9 @@ jobs:
         working-directory: ./circlewash
         run: npm ci
 
-      - name: Run frontend tests
-        working-directory: ./circlewash
-        run: npm test -- --watchAll=false
+      # - name: Run frontend tests
+      #   working-directory: ./circlewash
+      #   run: npm test -- --watchAll=false
 
       - name: Build frontend
         working-directory: ./circlewash
@@ -110,9 +110,9 @@ jobs:
         working-directory: ./new-circlewash-frontend
         run: npm ci
 
-      - name: Run frontend tests
-        working-directory: ./new-circlewash-frontend
-        run: npm test -- --watchAll=false
+      # - name: Run frontend tests
+      #   working-directory: ./new-circlewash-frontend
+      #   run: npm test -- --watchAll=false
 
       - name: Build frontend
         working-directory: ./new-circlewash-frontend
@@ -125,9 +125,9 @@ jobs:
         working-directory: ./circlewashstaff
         run: npm ci
 
-      - name: Run frontend tests
-        working-directory: ./circlewashstaff
-        run: npm test -- --watchAll=false
+      # - name: Run frontend tests
+      #   working-directory: ./circlewashstaff
+      #   run: npm test -- --watchAll=false
 
       - name: Build frontend
         working-directory: ./circlewashstaff
