@@ -1,6 +1,6 @@
 services:
   legacycirclewash:
-    build: ghcr.io/iamkennethhuang/CircleWash-MicroService/circlewash:latest
+    build: ghcr.io/iamkennethhuang/circlewash-microservice-circlewash:latest
     ports:
       - "${CIRCLEWASH_LEGACY_PUBLIC_FACING_PORT}:${CIRCLEWASH_LEGACY_PUBLIC_FACING_PORT}"
     volumes:
