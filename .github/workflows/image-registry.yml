@@ -51,4 +51,4 @@ jobs:
           context: ${{ matrix.service.context }}
           file: ${{ matrix.service.dockerfile }}
           push: true
-          tags: ghcr.io/${{ github.repository }}-${{ matrix.service.name }}:latest
+          tags: ghcr.io/${{ github.repository.toLowerCase() }}-${{ matrix.service.name.toLowerCase() }}:latest
