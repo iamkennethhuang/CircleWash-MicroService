@@ -1,0 +1,134 @@
+name: MERN CI on Merge to Develop
+
+on:
+  pull_request:
+    branches:
+      - develop
+    types:
+      - closed
+  push:
+    branches:
+      - develop
+
+jobs:
+  test-and-build:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [18]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Create .env file
+        run: |
+          echo "NODE_ENV=development" >> .env
+          echo "CIRCLEWASH_LEGACY_PUBLIC_FACING_PORT=${{ vars.CIRCLEWASH_LEGACY_PUBLIC_FACING_PORT }}" >> .env
+          echo "CIRCLEWASH_NEW_PUBLIC_FACING_PORT=${{ vars.CIRCLEWASH_NEW_PUBLIC_FACING_PORT }}" >> .env
+          echo "CIRCLEWASH_ADMIN_PORTAL_PORT=${{ vars.CIRCLEWASH_ADMIN_PORTAL_PORT }}" >> .env
+          echo "CHAT_SERVICE_PORT=${{ vars.CHAT_SERVICE_PORT }}" >> .env
+          echo "CUSTOMER_SERVICE_PORT=${{ vars.CUSTOMER_SERVICE_PORT }}" >> .env
+          echo "EMPLOYEE_SERVICE_PORT=${{ vars.EMPLOYEE_SERVICE_PORT }}" >> .env
+          echo "GATEWAY_PORT=${{ vars.GATEWAY_PORT }}" >> .env
+          echo "MACHINE_SERVICE_PORT=${{ vars.MACHINE_SERVICE_PORT }}" >> .env
+          echo "NOTIFICATION_SERVICE_PORT=${{ vars.NOTIFICATION_SERVICE_PORT }}" >> .env
+          echo "SUPPORT_CASE_SERVICE_PORT=${{ vars.SUPPORT_CASE_SERVICE_PORT }}" >> .env
+          echo "DB_HOST=${{ vars.DB_HOST }}" >> .env
+          echo "MONGO_PORT=${{ vars.MONGO_PORT }}" >> .env
+          echo "MONGO_USER=${{ secrets.MONGO_USER }}" >> .env
+          echo "MONGO_PASSWORD=${{ secrets.MONGO_PASSWORD }}" >> .env
+          echo "MONGO_DB_NAME=${{ vars.MONGO_DB_NAME }}" >> .env
+          echo "MONGO_URI=${{ vars.MONGO_URI }}" >> .env
+          echo "REDIS_HOST=${{ vars.REDIS_HOST }}" >> .env
+          echo "REDIS_PORT=${{ vars.REDIS_PORT }}" >> .env
+          echo "REDIS_ADMIN_PORT=${{ vars.REDIS_ADMIN_PORT }}" >> .env
+          echo "RABBITMQ_HOST=${{ vars.RABBITMQ_HOST }}" >> .env
+          echo "RABBITMQ_URL=${{vars.RABBITMQ_URL}}" >> .env
+          echo "RABBITMQ_ADMIN_TOOL_URL=${{vars.RABBITMQ_ADMIN_TOOL_URL}}" >> .env
+          echo "RABBITMQ_PORT=${{vars.RABBITMQ_PORT}}" >> .env
+          echo "RABBITMQ_ADMIN_PORT=${{vars.RABBITMQ_ADMIN_PORT}}" >> .env
+          echo "RABBITMQ_USER=${{ secrets.RABBITMQ_USER }}" >> .env
+          echo "RABBITMQ_PASSWORD=${{ secrets.RABBITMQ_PASSWORD }}" >> .env
+          echo "RABBITMQ_EXCHANGE_NAME=${{ vars.RABBITMQ_EXCHANGE_NAME }}" >> .env
+          echo "RABBITMQ_MACHINE_ROUTING_KEY=${{ vars.RABBITMQ_MACHINE_ROUTING_KEY }}" >> .env
+          echo "RABBITMQ_EMPLOYEE_ROUTING_KEY=${{ vars.RABBITMQ_EMPLOYEE_ROUTING_KEY }}" >> .env
+          echo "RABBITMQ_SUPPORT_CASE_ROUTING_KEY=${{ vars.RABBITMQ_SUPPORT_CASE_ROUTING_KEY }}" >> .env
+          echo "RABBITMQ_MACHINE_QUEUE_BINDING_KEY=${{ vars.RABBITMQ_MACHINE_QUEUE_BINDING_KEY }}" >> .env
+          echo "RABBITMQ_NOTIFICATION_QUEUE_BINDING_KEY=${{ vars.RABBITMQ_NOTIFICATION_QUEUE_BINDING_KEY }}" >> .env
+          echo "RABBITMQ_EMPLOYEE_QUEUE_BINDING_KEY=${{ vars.RABBITMQ_EMPLOYEE_QUEUE_BINDING_KEY }}" >> .env
+          echo "RABBITMQ_SUPPORT_CASE_QUEUE_BINDING_KEY=${{ vars.RABBITMQ_SUPPORT_CASE_QUEUE_BINDING_KEY }}" >> .env
+          echo "RABBITMQ_MACHINE_QUEUE_NAME=${{ vars.RABBITMQ_MACHINE_QUEUE_NAME }}" >> .env
+          echo "RABBITMQ_NOTIFICATION_QUEUE_NAME=${{ vars.RABBITMQ_NOTIFICATION_QUEUE_NAME }}" >> .env
+          echo "RABBITMQ_EMPLOYEE_QUEUE_NAME=${{ vars.RABBITMQ_EMPLOYEE_QUEUE_NAME }}" >> .env
+          echo "RABBITMQ_SUPPORT_CASE_QUEUE_NAME=${{ vars.RABBITMQ_SUPPORT_CASE_QUEUE_NAME }}" >> .env
+          
+      # ======================
+      # Backend (Express)
+      # ======================
+      # - name: Install backend dependencies
+      #   working-directory: ./backend
+      #   run: npm ci
+
+      # - name: Run backend tests
+      #   working-directory: ./backend
+      #   run: npm test
+
+      # - name: Build backend (if applicable)
+      #   working-directory: ./backend
+      #   run: |
+      #     if [ -f package.json ] && npm run | grep -q "build"; then
+      #       npm run build
+      #     fi
+
+      # ======================
+      # Legacy CircleWash Frontend (React)
+      # ======================
+      - name: Install frontend dependencies
+        working-directory: ./circlewash
+        run: npm ci
+
+      # - name: Run frontend tests
+      #   working-directory: ./circlewash
+      #   run: npm test -- --watchAll=false
+
+      - name: Build frontend
+        working-directory: ./circlewash
+        run: npm run build
+
+      # ======================
+      # NEW CircleWash Frontend (React)
+      # ======================
+      - name: Install frontend dependencies
+        working-directory: ./new-circlewash-frontend
+        run: npm ci
+
+      # - name: Run frontend tests
+      #   working-directory: ./new-circlewash-frontend
+      #   run: npm test -- --watchAll=false
+
+      - name: Build frontend
+        working-directory: ./new-circlewash-frontend
+        run: npm run build
+      
+      # ======================
+      # CircleWash Admin Portal Frontend (React)
+      # ======================
+      - name: Install frontend dependencies
+        working-directory: ./circlewashstaff
+        run: npm ci
+
+      # - name: Run frontend tests
+      #   working-directory: ./circlewashstaff
+      #   run: npm test -- --watchAll=false
+
+      - name: Build frontend
+        working-directory: ./circlewashstaff
+        run: npm run build
