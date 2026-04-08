@@ -1,8 +1,6 @@
-version: "0.1"
-
 services:
   legacycirclewash:
-    build: ./circlewash
+    build: ghcr.io/iamkennethhuang/CircleWash-MicroService/circlewash:latest
     ports:
       - "${CIRCLEWASH_LEGACY_PUBLIC_FACING_PORT}:${CIRCLEWASH_LEGACY_PUBLIC_FACING_PORT}"
     volumes:
@@ -13,93 +11,94 @@ services:
       - PORT=${CIRCLEWASH_LEGACY_PUBLIC_FACING_PORT}
     depends_on:
       - mongo
+    restart: always
 
-  newcirclewash:
-    build: ./new-circlewash-frontend
-    ports:
-      - "${CIRCLEWASH_NEW_PUBLIC_FACING_PORT}:${CIRCLEWASH_NEW_PUBLIC_FACING_PORT}"
-    volumes:
-      - ./new-circlewash-frontend:/app
-      - /app/node_modules
-    environment:
-      - MONGO_URI=${MONGO_URI}
-      - PORT=${CIRCLEWASH_NEW_PUBLIC_FACING_PORT}
-    depends_on:
-      - mongo
+  # newcirclewash:
+  #   build: ./new-circlewash-frontend
+  #   ports:
+  #     - "${CIRCLEWASH_NEW_PUBLIC_FACING_PORT}:${CIRCLEWASH_NEW_PUBLIC_FACING_PORT}"
+  #   volumes:
+  #     - ./new-circlewash-frontend:/app
+  #     - /app/node_modules
+  #   environment:
+  #     - MONGO_URI=${MONGO_URI}
+  #     - PORT=${CIRCLEWASH_NEW_PUBLIC_FACING_PORT}
+  #   depends_on:
+  #     - mongo
 
-  circlewashstaff:
-    build: ./circlewashstaff
-    ports:
-      - "${CIRCLEWASH_ADMIN_PORTAL_PORT}:${CIRCLEWASH_ADMIN_PORTAL_PORT}"
-    volumes:
-      - ./circlewashstaff:/app
-      - /app/node_modules
-    environment:
-      - MONGO_URI=${MONGO_URI}
-      - PORT=${CIRCLEWASH_ADMIN_PORTAL_PORT}
-    depends_on:
-      - mongo
+  # circlewashstaff:
+  #   build: ./circlewashstaff
+  #   ports:
+  #     - "${CIRCLEWASH_ADMIN_PORTAL_PORT}:${CIRCLEWASH_ADMIN_PORTAL_PORT}"
+  #   volumes:
+  #     - ./circlewashstaff:/app
+  #     - /app/node_modules
+  #   environment:
+  #     - MONGO_URI=${MONGO_URI}
+  #     - PORT=${CIRCLEWASH_ADMIN_PORTAL_PORT}
+  #   depends_on:
+  #     - mongo
 
-  machine:
-    build: ./backend/machine
-    ports:
-      - "${MACHINE_SERVICE_PORT}:${MACHINE_SERVICE_PORT}"
-    volumes:
-      - ./backend/machine:/app
-      - /app/node_modules
-    environment:
-      - MONGO_URI=${MONGO_URI}
-      - PORT=${MACHINE_SERVICE_PORT}
-      - APP_SECRET=''
-      - ATLAS_URI=''
-      - FASCARD_USERNAME=''
-      - FASCARD_PASSWORD=''
-      - MESSAGE_BROKER_URL=${RABBITMQ_URL}
-      - EXCHANGE_NAME=${RABBITMQ_EXCHANGE_NAME}
-      - QUEUE_NAME=${RABBITMQ_MACHINE_QUEUE_NAME}
-      - SUPPORT_CASE_BINDING_KEY=${RABBITMQ_MACHINE_ROUTING_KEY}
-      - MACHINE_BINDING_KEY=${RABBITMQ_MACHINE_QUEUE_BINDING_KEY}
-    depends_on:
-      - mongo
-      - rabbitmq
+  # machine:
+  #   build: ./backend/machine
+  #   ports:
+  #     - "${MACHINE_SERVICE_PORT}:${MACHINE_SERVICE_PORT}"
+  #   volumes:
+  #     - ./backend/machine:/app
+  #     - /app/node_modules
+  #   environment:
+  #     - MONGO_URI=${MONGO_URI}
+  #     - PORT=${MACHINE_SERVICE_PORT}
+  #     - APP_SECRET=''
+  #     - ATLAS_URI=''
+  #     - FASCARD_USERNAME=''
+  #     - FASCARD_PASSWORD=''
+  #     - MESSAGE_BROKER_URL=${RABBITMQ_URL}
+  #     - EXCHANGE_NAME=${RABBITMQ_EXCHANGE_NAME}
+  #     - QUEUE_NAME=${RABBITMQ_MACHINE_QUEUE_NAME}
+  #     - SUPPORT_CASE_BINDING_KEY=${RABBITMQ_MACHINE_ROUTING_KEY}
+  #     - MACHINE_BINDING_KEY=${RABBITMQ_MACHINE_QUEUE_BINDING_KEY}
+  #   depends_on:
+  #     - mongo
+  #     - rabbitmq
 
   mongo:
     image: mongo
     ports:
-      - "${MONGO_PORT}:${MONGO_PORT}"
+      - "${MONGO_PORT}:27017"
 
-  rabbitmq:
-    image: rabbitmq:latest
-    container_name: rabbitmq
-    hostname: "rabbitmq"
-    restart: always
-    ports:
-      - "${RABBITMQ_PORT}:${RABBITMQ_PORT}"
-      - "${RABBITMQ_ADMIN_PORT}:${RABBITMQ_ADMIN_PORT}"
-    environment:
-      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
-      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
-    healthcheck:
-      test: ["CMD", "rabbitmqctl", "status"]
-      interval: 10s
-      timeout: 10s
-      retries: 5
-      start_period: 30s
-    configs:
-      - source: rabbitmq-plugins
-        target: /etc/rabbitmq/enabled_plugins
-    volumes:
-      - rabbitmq-lib:/var/lib/rabbitmq/
-      - rabbitmq-log:/var/log/rabbitmq
+#   rabbitmq:
+#     image: rabbitmq:3-management
+#     container_name: rabbitmq
+#     hostname: "rabbitmq"
+#     restart: always
+#     ports:
+#       - "${RABBITMQ_PORT}:5672"
+#       - "${RABBITMQ_ADMIN_PORT}:15672"
+#     environment:
+#       RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
+#       RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
+#     healthcheck:
+#       test: ["CMD", "rabbitmqctl", "status"]
+#       interval: 10s
+#       timeout: 10s
+#       retries: 5
+#       start_period: 30s
+#     configs:
+#       - source: rabbitmq-plugins
+#         target: /etc/rabbitmq/enabled_plugins
+#     volumes:
+#       - rabbitmq-lib:/var/lib/rabbitmq/
+#       - rabbitmq-log:/var/log/rabbitmq
 
-configs:
-  rabbitmq-plugins:
-    content: "[rabbitmq_management]."  
+# configs:
+#   rabbitmq-plugins:
+#     content: "[rabbitmq_management]."  
 
-volumes:
-  rabbitmq-lib:
-    driver: local
-  rabbitmq-log:
-    driver: local
+# volumes:
+#   rabbitmq-lib:
+#     driver: local
+#   rabbitmq-log:
+#     driver: local
 
   

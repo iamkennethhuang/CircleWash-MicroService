@@ -55,13 +55,8 @@ jobs:
             mkdir -p ${{ secrets.DO_APP_DIR }}
             cd ${{ secrets.DO_APP_DIR }}
 
-            echo "📦 Pull latest code"
-            if [ -d ".git" ]; then
-              git pull origin main
-            else
-              rm -rf ./* ./.??*
-              git clone https://github.com/${{ github.repository }} .
-            fi
+            echo "Empty App Directory"
+            rm -rf ./* ./.??*
 
             echo "create .env file"
             echo "NODE_ENV=development" >> .env
@@ -104,13 +99,9 @@ jobs:
             echo "RABBITMQ_EMPLOYEE_QUEUE_NAME=${{ vars.RABBITMQ_EMPLOYEE_QUEUE_NAME }}" >> .env
             echo "RABBITMQ_SUPPORT_CASE_QUEUE_NAME=${{ vars.RABBITMQ_SUPPORT_CASE_QUEUE_NAME }}" >> .env
 
-            echo "🐳 Stopping old containers"
-            docker-compose down
+            echo "📥 Pull latest image"
+            docker-compose pull
 
-            echo "🚀 Rebuilding containers"
-            docker-compose up -d --build
-
-            echo "🧹 Cleaning unused images"
-            docker system prune -f
-
+            echo "🚀 Restart containers"
+            docker-compose up -d
           EOF
