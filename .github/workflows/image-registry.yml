@@ -48,7 +48,7 @@ jobs:
       - name: Convert to lowercase
         run: |
           # Convert input to lowercase and set it as a new environment variable
-          echo "GITHUB_REPOSITORY_LOWER_NAME=${github.repository,,}" >> $GITHUB_ENV
+          echo "GITHUB_REPOSITORY_LOWER_NAME=${{ github.repository }}" | tr '[:upper:]' '[:lower:]' >> $GITHUB_ENV
 
       - name: Build & Push ${{ matrix.service.name }}
         uses: docker/build-push-action@v5
