@@ -50,13 +50,18 @@ jobs:
       - name: Deploy to Droplet
         run: |
           ssh ${{ secrets.DO_USERNAME }}@${{ secrets.DO_HOST }} << 'EOF'
+            REPO_URL=https://github.com/${{ github.repository }}.git
 
-            echo "📁 Creating app directory if not exists"
-            mkdir -p ${{ secrets.DO_APP_DIR }}
+            if [ ! -d ${{ secrets.DO_APP_DIR }} ]; then
+              echo "Cloning repository..."
+              git clone $REPO_URL ${{ secrets.DO_APP_DIR }}
+            else
+              echo "Repository exists, pulling latest..."
+              cd ${{ secrets.DO_APP_DIR }}
+              git pull origin main
+            fi
+
             cd ${{ secrets.DO_APP_DIR }}
-
-            echo "Empty App Directory"
-            rm -rf ./* ./.??*
 
             echo "create .env file"
             echo "NODE_ENV=development" >> .env
@@ -100,8 +105,11 @@ jobs:
             echo "RABBITMQ_SUPPORT_CASE_QUEUE_NAME=${{ vars.RABBITMQ_SUPPORT_CASE_QUEUE_NAME }}" >> .env
 
             echo "📥 Pull latest image"
-            docker-compose pull
+            docker-compose pull -f docker-compose.prod.yml
 
             echo "🚀 Restart containers"
-            docker-compose up -d
+            docker-compose up -d -f docker-compose.prod.yml
+
+            echo "Cleanup old images..."
+            docker image prune -f
           EOF

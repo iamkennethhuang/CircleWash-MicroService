@@ -1,6 +1,6 @@
 services:
   legacycirclewash:
-    build: ghcr.io/iamkennethhuang/circlewash-microservice-circlewash:latest
+    build: ./circlewash
     ports:
       - "${CIRCLEWASH_LEGACY_PUBLIC_FACING_PORT}:${CIRCLEWASH_LEGACY_PUBLIC_FACING_PORT}"
     volumes:
@@ -11,7 +11,6 @@ services:
       - PORT=${CIRCLEWASH_LEGACY_PUBLIC_FACING_PORT}
     depends_on:
       - mongo
-    restart: always
 
   # newcirclewash:
   #   build: ./new-circlewash-frontend
