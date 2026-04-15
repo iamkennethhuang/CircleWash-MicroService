@@ -44,11 +44,6 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      
-      - name: Convert to lowercase
-        run: |
-          # Convert input to lowercase and set it as a new environment variable
-          echo "GITHUB_REPOSITORY_LOWER_NAME=${{ github.repository }}" | tr '[:upper:]' '[:lower:]' >> $GITHUB_ENV
 
       - name: Build & Push ${{ matrix.service.name }}
         uses: docker/build-push-action@v5
@@ -56,4 +51,4 @@ jobs:
           context: ${{ matrix.service.context }}
           file: ${{ matrix.service.dockerfile }}
           push: true
-          tags: ghcr.io/${{ env.GITHUB_REPOSITORY_LOWER_NAME }}-${{ matrix.service.name }}:latest
+          tags: ghcr.io/${{ vars.REPOSITORY_LOWER_NAME }}-${{ matrix.service.name }}:latest
