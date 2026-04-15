@@ -1,0 +1,20 @@
+services:
+  legacycirclewash:
+    image: ghcr.io/iamkennethhuang/circlewash-microservice-circlewash:latest
+    ports:
+      - "${CIRCLEWASH_LEGACY_PUBLIC_FACING_PORT}:${CIRCLEWASH_LEGACY_PUBLIC_FACING_PORT}"
+    volumes:
+      - ./circlewash:/app
+      - /app/node_modules
+    environment:
+      - MONGO_URI=${MONGO_URI}
+      - PORT=${CIRCLEWASH_LEGACY_PUBLIC_FACING_PORT}
+    depends_on:
+      - mongo
+    restart: always
+
+  mongo:
+    image: mongo
+    ports:
+      - "${MONGO_PORT}:27017"
+  
