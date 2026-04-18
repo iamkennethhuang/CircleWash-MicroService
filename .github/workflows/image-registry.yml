@@ -4,11 +4,6 @@ on:
   push:
     branches:
       - master
-  pull_request:
-    branches:
-      - master
-    types:
-      - closed
   workflow_dispatch:
     inputs:
       logLevel:
@@ -28,7 +23,7 @@ jobs:
             environment:
               MONGO_URI: ${{ vars.MONGO_URI }}
               PORT: ${{ vars.CIRCLEWASH_LEGACY_PUBLIC_FACING_PORT }}
-            dockerfile: ./circlewash/dockerfile
+            dockerfile: ./circlewash/dockerfile.prod
 
     permissions:
       contents: read
