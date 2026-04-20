@@ -51,7 +51,9 @@ jobs:
             else
               echo "Repository exists, pulling latest..."
               cd ${{ secrets.DO_APP_DIR }}
-              git pull origin main
+              git fetch origin
+              git checkout master
+              git reset --hard origin/master
             fi
 
             echo "remove .env file"
