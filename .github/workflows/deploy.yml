@@ -55,6 +55,9 @@ jobs:
 
             cd ${{ secrets.DO_APP_DIR }}
 
+            echo "remove .env file"
+            rm -f .env
+
             echo "create .env file"
             echo "NODE_ENV=development" >> .env
             echo "CIRCLEWASH_LEGACY_PUBLIC_FACING_PORT=${{ vars.CIRCLEWASH_LEGACY_PUBLIC_FACING_PORT }}" >> .env
