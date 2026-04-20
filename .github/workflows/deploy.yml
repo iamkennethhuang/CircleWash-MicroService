@@ -1,14 +1,6 @@
 name: Deploy App to DigitalOcean
 
 on:
-  push:
-    branches:
-      - master
-  pull_request:
-    branches:
-      - master
-    types:
-      - closed
   workflow_dispatch:
     inputs:
       logLevel:
@@ -66,6 +58,7 @@ jobs:
             echo "create .env file"
             echo "NODE_ENV=development" >> .env
             echo "CIRCLEWASH_LEGACY_PUBLIC_FACING_PORT=${{ vars.CIRCLEWASH_LEGACY_PUBLIC_FACING_PORT }}" >> .env
+            echo "CIRCLEWASH_LEGACY_PUBLIC_FACING_CONTAINER_PORT=${{ vars.CIRCLEWASH_LEGACY_PUBLIC_FACING_CONTAINER_PORT }}" >> .env
             echo "CIRCLEWASH_NEW_PUBLIC_FACING_PORT=${{ vars.CIRCLEWASH_NEW_PUBLIC_FACING_PORT }}" >> .env
             echo "CIRCLEWASH_ADMIN_PORTAL_PORT=${{ vars.CIRCLEWASH_ADMIN_PORTAL_PORT }}" >> .env
             echo "CHAT_SERVICE_PORT=${{ vars.CHAT_SERVICE_PORT }}" >> .env
