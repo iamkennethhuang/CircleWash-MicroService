@@ -47,13 +47,12 @@ jobs:
             if [ ! -d ${{ secrets.DO_APP_DIR }} ]; then
               echo "Cloning repository..."
               git clone $REPO_URL ${{ secrets.DO_APP_DIR }}
+              cd ${{ secrets.DO_APP_DIR }}
             else
               echo "Repository exists, pulling latest..."
               cd ${{ secrets.DO_APP_DIR }}
               git pull origin main
             fi
-
-            cd ${{ secrets.DO_APP_DIR }}
 
             echo "remove .env file"
             rm -f .env
@@ -102,6 +101,9 @@ jobs:
 
             echo "📥 Pull latest image"
             docker-compose -f docker-compose.prod.yml pull
+
+             echo "🚀 Stop containers"
+            docker-compose -f docker-compose.prod.yml down
 
             echo "🚀 Restart containers"
             docker-compose -f docker-compose.prod.yml up -d
