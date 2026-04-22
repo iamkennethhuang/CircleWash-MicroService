@@ -21,7 +21,7 @@ COPY . .
 
 # Expose port
 # Default port (can be overridden)
-ENV PORT=3000
+ENV PORT=3002
 EXPOSE $PORT
 
 # Start app
