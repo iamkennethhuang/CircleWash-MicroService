@@ -24,6 +24,12 @@ jobs:
               MONGO_URI: ${{ vars.MONGO_URI }}
               PORT: ${{ vars.CIRCLEWASH_LEGACY_PUBLIC_FACING_PORT }}
             dockerfile: ./circlewash/dockerfile.prod
+          - name: circlewashstaff
+            context: ./circlewashstaff
+            environment:
+              MONGO_URI: ${{ vars.MONGO_URI }}
+              PORT: ${{ vars.CIRCLEWASH_ADMIN_PORTAL_PORT }}
+            dockerfile: ./circlewashstaff/dockerfile.prod
 
     permissions:
       contents: read
