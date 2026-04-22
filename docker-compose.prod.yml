@@ -16,6 +16,24 @@ services:
       resources:
         limits:
           memory: 512M
+  
+    circlewashstaff:
+      image: ghcr.io/iamkennethhuang/circlewash-microservice-circlewashstaff:latest
+      ports:
+        - "${CIRCLEWASH_ADMIN_PORTAL_PORT}:${CIRCLEWASH_LEGACY_PUBLIC_FACING_CONTAINER_PORT}"
+      volumes:
+        - ./circlewashstaff:/app
+        - /app/node_modules
+      environment:
+        - MONGO_URI=${MONGO_URI}
+        - PORT=${CIRCLEWASH_ADMIN_PORTAL_PORT}
+      depends_on:
+        - mongo
+      restart: always
+      deploy:
+        resources:
+          limits:
+            memory: 512M
 
   mongo:
     image: mongo
